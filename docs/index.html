@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>顶点音乐 - 全网免费听</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><path fill='%23D81E06' d='M251.32 32H236.59l-27.77-.52H118.39a8.54 8.54 0 00-7.67 4.78A343.39 343.39 0 0174.6 82.45a442.74 442.74 0 01-41 38.92c-1 .85-5.26 5.26-5.26 5.26l-.08 44.1a4.44 4.44 0 007.57 3.11l57-57c6.28-6.27 11.22-2.2 11.22 6.67V271.86a61.64 61.64 0 00-16.31-2.17c-32.82 0-58.38 21.32-58.38 48.92s25.56 50 58.38 50 57.34-22.37 57.34-50V284.07l45.23-.7h20c17.88 0 20-.41 34.71 0 75.74 2.1 126.76-52.27 126.76-125.18S321.62 32.56 251.32 32zm9.62 192.27a13.17 13.17 0 01-2.42.26l-33 .5H213.29a13 13 0 01-13-13V103.32a13 13 0 0113-13H225.5l33 .5a12.36 12.36 0 012.42.26c27.77 5.92 47.71 37.3 47.71 66.56s-19 47.95-46.77 53.87z'/></svg>">
+    <link rel="stylesheet" href="style.css?v=3.5.0">
+</head>
+<body>
+<div class="app-frame">
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 400 400">
+                    <path fill="#D81E06" d="M251.32,32H236.59l-27.77-.52H118.39a8.54,8.54,0,0,0-7.67,4.78A343.39,343.39,0,0,1,74.6,82.45a442.74,442.74,0,0,1-41,38.92c-1,.85-5.26,5.26-5.26,5.26l-.08,44.1a4.44,4.44,0,0,0,7.57,3.11l57-57c6.28-6.27,11.22-2.2,11.22,6.67V271.86a61.64,61.64,0,0,0-16.31-2.17c-32.82,0-58.38,21.32-58.38,48.92s25.56,50,58.38,50,57.34-22.37,57.34-50V284.07l45.23-.7h20c17.88,0,20-.41,34.71,0,75.74,2.1,126.76-52.27,126.76-125.18S321.62,32.56,251.32,32Zm9.62,192.27a13.17,13.17,0,0,1-2.42.26l-33,.5H213.29a13,13,0,0,1-13-13V103.32a13,13,0,0,1,13-13H225.5l33,.5a12.36,12.36,0,0,1,2.42.26c27.77,5.92,47.71,37.3,47.71,66.56S288.71,218.3,260.94,224.22Z"/>
+                </svg>
+                <span class="logo-text">顶点音乐</span>
+            </div>
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="searchInput" placeholder="搜索歌曲、歌手..." autocomplete="off">
+            </div>
+            <div class="header-actions">
+                <button class="btn-theme" id="btnTheme" title="切换主题">
+                    <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                </button>
+                <button class="btn-login" id="btnLogin" title="登录">
+                    <svg class="icon-default" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <nav class="platform-tabs" id="platformTabs">
+        <button class="platform-tab active" data-platform="netease" style="--pc:#D81E06">网易云</button>
+        <button class="platform-tab" data-platform="qq" style="--pc:#31c27c">QQ音乐</button>
+        <button class="platform-tab" data-platform="kugou" style="--pc:#2e8bff">酷狗</button>
+        <button class="platform-tab" data-platform="kuwo" style="--pc:#ffcc00">酷我</button>
+        <button class="platform-tab" data-platform="migu" style="--pc:#e5004f">咪咕</button>
+        <button class="platform-tab" data-platform="bilibili" style="--pc:#fb7299">B站</button>
+        <button class="platform-tab" data-platform="mine" style="--pc:#8b5cf6">我的</button>
+    </nav>
+
+    <main class="main-content">
+        <div class="breadcrumb" id="breadcrumb" style="display:none">
+            <button class="btn-back" id="btnBack">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <span>返回</span>
+            </button>
+            <span class="breadcrumb-title" id="breadcrumbTitle"></span>
+        </div>
+        <div class="view" id="viewHome">
+            <div id="discoverContainer"><div class="loading"><div class="spinner"></div><span>加载歌单...</span></div></div>
+        </div>
+        <div class="view" id="viewDetail" style="display:none">
+            <div class="detail-header" id="detailHeader"></div>
+            <div class="song-list" id="songList"></div>
+        </div>
+        <div class="view" id="viewSearch" style="display:none">
+            <div class="category-name" id="searchTitle" style="margin-bottom:12px">搜索结果</div>
+            <div class="search-plat-tabs" id="searchPlatTabs">
+                <button class="search-plat-tab active" data-platform="netease" style="--pc:#D81E06">网易云</button>
+                <button class="search-plat-tab" data-platform="qq" style="--pc:#31c27c">QQ音乐</button>
+                <button class="search-plat-tab" data-platform="kugou" style="--pc:#2e8bff">酷狗</button>
+                <button class="search-plat-tab" data-platform="kuwo" style="--pc:#ffcc00">酷我</button>
+                <button class="search-plat-tab" data-platform="migu" style="--pc:#e5004f">咪咕</button>
+                <button class="search-plat-tab" data-platform="bilibili" style="--pc:#fb7299">B站</button>
+            </div>
+            <div class="song-list" id="searchList"></div>
+        </div>
+        <div class="view" id="viewMine" style="display:none">
+            <div class="mine-layout">
+                <div class="mine-sidebar" id="mineSidebar"></div>
+                <div class="mine-content" id="mineContent"><div class="empty-hint">选择左侧查看</div></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Now Playing -->
+<div class="nowplaying" id="nowPlaying" style="display:none">
+    <div class="np-bg" id="npBg"></div><div class="np-backdrop"></div>
+    <button class="np-back" id="npClose"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button class="np-fullscreen" id="npFullscreen" title="全屏"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg></button>
+    <div class="np-body">
+        <div class="np-left">
+            <div class="np-vinyl-wrap"><div class="np-vinyl" id="npVinyl"><div class="vinyl-disc"><div class="vinyl-groove vinyl-groove-1"></div><div class="vinyl-groove vinyl-groove-2"></div><div class="vinyl-groove vinyl-groove-3"></div><div class="vinyl-label" id="npLabel"></div></div><div class="vinyl-wave" id="vinylWave"></div></div></div>
+            <div class="np-controls" id="npControls">
+                <div class="np-play-row"><button class="ctrl" id="npPrev"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button><button class="ctrl play-btn" id="npPlay"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" id="npPlayIcon"><path d="M8 5v14l11-7z"/></svg></button><button class="ctrl" id="npNext"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button></div>
+                <div class="np-progress-wrap"><span class="time" id="npCurrentTime">0:00</span><div class="progress-bar" id="npProgressBar"><div class="progress-fill" id="npProgressFill"></div></div><span class="time" id="npDuration">0:00</span></div>
+                <div class="np-action-row">
+                    <button class="ctrl" id="npFav" title="收藏"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></button>
+                    <button class="ctrl" id="npDownload" title="下载"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+                    <button class="ctrl" id="npShare" title="分享"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg></button>
+                </div>
+            </div>
+        </div>
+        <div class="np-right">
+            <div class="np-song-meta">
+                <div class="np-title" id="npTitle">顶点音乐</div>
+                <div class="np-meta-tags">
+                    <span class="np-tag" id="npArtistTag">歌手：未知</span>
+                    <span class="np-tag" id="npAlbumTag">专辑：未知</span>
+                    <span class="np-tag np-tag-platform" id="npPlatformTag">网易云</span>
+                    <span class="np-tag np-tag-quality" id="npQualityTag">标准</span>
+                </div>
+            </div>
+            <div class="np-lyrics" id="npLyrics"><div class="lyrics-placeholder">暂无歌词</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Queue Drawer -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="queue-drawer" id="queueDrawer">
+    <div class="drawer-header"><span class="drawer-title">播放队列</span><span class="drawer-badge" id="queueCount">0</span><button class="btn-drawer-clear" id="clearPlaylist">清空</button><button class="btn-drawer-close" id="closeDrawer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="drawer-list" id="queueList"><div class="empty-hint">播放队列为空</div></div>
+</div>
+
+<!-- Player -->
+<div class="player" id="player">
+    <div class="player-cover-wrap" id="playerCoverWrap"><img class="player-cover" id="playerCover" src="" alt="" style="display:none"><svg class="player-cover-logo" id="playerCoverLogo" viewBox="0 0 400 400"><path fill="#D81E06" d="M251.32,32H236.59l-27.77-.52H118.39a8.54,8.54,0,0,0-7.67,4.78A343.39,343.39,0,0,1,74.6,82.45a442.74,442.74,0,0,1-41,38.92c-1,.85-5.26,5.26-5.26,5.26l-.08,44.1a4.44,4.44,0,0,0,7.57,3.11l57-57c6.28-6.27,11.22-2.2,11.22,6.67V271.86a61.64,61.64,0,0,0-16.31-2.17c-32.82,0-58.38,21.32-58.38,48.92s25.56,50,58.38,50,57.34-22.37,57.34-50V284.07l45.23-.7h20c17.88,0,20-.41,34.71,0,75.74,2.1,126.76-52.27,126.76-125.18S321.62,32.56,251.32,32Zm9.62,192.27a13.17,13.17,0,0,1-2.42.26l-33,.5H213.29a13,13,0,0,1-13-13V103.32a13,13,0,0,1,13-13H225.5l33,.5a12.36,12.36,0,0,1,2.42.26c27.77,5.92,47.71,37.3,47.71,66.56S288.71,218.3,260.94,224.22Z"/></svg></div>
+    <div class="player-meta"><div class="player-title" id="playerTitle">顶点音乐</div><div class="player-artist" id="playerArtist">选择歌曲开始播放</div></div>
+    <div class="player-controls">
+        <button class="ctrl" id="btnPrev"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+        <button class="ctrl play-btn" id="btnPlay"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="ctrl" id="btnNext"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+        <button class="ctrl" id="btnLoop"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" id="loopIcon"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></button>
+    </div>
+    <div class="progress-wrap"><span class="time" id="currentTime">0:00</span><div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div><span class="time" id="duration">0:00</span></div>
+    <div class="player-extra">
+        <button class="ctrl" id="btnVolume"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" id="volumeIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg></button>
+        <div class="volume-bar" id="volumeBar"><div class="volume-fill" id="volumeFill" style="width:70%"></div></div>
+        <span class="plat-tag" id="platformBadge"></span>
+        <button class="btn-queue" id="btnQueue"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="queue-dot" id="queueDot"></span></button>
+    </div>
+</div>
+
+<!-- Login Modal (GitHub) -->
+<div class="modal-overlay" id="loginModal" style="display:none">
+    <div class="modal">
+        <div class="modal-header"><span>登录</span><button class="modal-close" id="closeLoginModal"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+        <div class="modal-body login-github-body">
+            <div class="gh-login-circle" id="ghLoginBtn"><svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></div>
+            <p class="gh-login-text">GitHub 登录</p>
+            <div class="login-status" id="ghLoginStatus"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Bind Cookie Modal -->
+<div class="modal-overlay" id="bindModal" style="display:none">
+    <div class="modal">
+        <div class="modal-header"><span id="bindModalTitle">绑定平台</span><button class="modal-close" id="closeBindModal"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+        <div class="modal-body">
+            <p class="modal-hint" id="bindModalHint">粘贴你的网易云Cookie（从浏览器开发者工具获取 Music_u 值）</p>
+            <textarea id="bindCookieInput" class="modal-input" rows="3" placeholder="Music_u=xxx; 其他cookie..."></textarea>
+            <button id="bindCookieBtn" class="btn-primary">完成绑定</button>
+            <div class="loading" id="bindLoading" style="display:none"><div class="spinner"></div><span>验证中...</span></div>
+            <div class="login-status" id="bindStatus"></div>
+        </div>
+    </div>
+</div>
+
+<audio id="audio"></audio>
+<script type="module" src="app.js?v=3.5.0"></script>
+</body>
+</html>
