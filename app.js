@@ -1,4 +1,4 @@
-// === DD Music v3.3 - All bugs fixed ===
+// === DD Music v3.4 - Bug fixes + new features ===
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
@@ -89,7 +89,7 @@ function bindPlaylistCards(c){c.querySelectorAll('.playlist-card[data-cat]').for
 var mineActiveTab='favorites';
 function renderMinePage(){
   var sb=$('#mineSidebar');
-  var tabs=[{key:'mine',name:'Mine',icon:'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'},{key:'favorites',name:'收藏',icon:'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z'},{key:'playlists',name:'歌单',icon:'M4 6h16M4 12h16M4 18h10'},{key:'frequent',name:'常听',icon:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'},{key:'settings',name:'设置',icon:'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'},{key:'upload',name:'上传',icon:'M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z'}];
+  var tabs=[{key:'mine',name:'Mine',icon:'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'},{key:'favorites',name:'收藏',icon:'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z'},{key:'playlists',name:'歌单',icon:'M4 6h16M4 12h16M4 18h10'},{key:'frequent',name:'最近',icon:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'},{key:'settings',name:'设置',icon:'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'},{key:'upload',name:'上传',icon:'M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z'}];
   sb.innerHTML=tabs.map(function(t){return'<div class="mine-tab'+(mineActiveTab===t.key?' active':'')+'" data-tab="'+t.key+'"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="'+t.icon+'"/></svg><span>'+t.name+'</span></div>'}).join('');
   sb.querySelectorAll('.mine-tab').forEach(function(el){el.addEventListener('click',function(){sb.querySelectorAll('.mine-tab').forEach(function(e){e.classList.remove('active')});el.classList.add('active');mineActiveTab=el.dataset.tab;renderMineContent()})});
   renderMineContent();
@@ -100,7 +100,7 @@ function renderMineContent(){
   if(mineActiveTab==='mine') renderMineInfo(c);
   else if(mineActiveTab==='favorites') renderFavorites(c);
   else if(mineActiveTab==='playlists') renderMyPlaylists(c);
-  else if(mineActiveTab==='frequent') renderFrequent(c);
+  else if(mineActiveTab==='frequent') renderRecent(c);
   else if(mineActiveTab==='settings') renderSettings(c);
   else if(mineActiveTab==='upload') c.innerHTML='<div class="empty-hint"><p style="font-size:14px">功能暂未开放</p><p style="font-size:11px;color:var(--text3);margin-top:6px">上传功能即将上线</p></div>';
 }
@@ -108,15 +108,18 @@ function renderMineContent(){
 function renderMineInfo(c){
   if(!userState.github.loggedIn){c.innerHTML='<div class="empty-hint">请先登录</div>';return}
   var avatar=userState.github.avatar||'',name=userState.github.name||userState.github.login||'用户',login=userState.github.login||'';
-  // Calculate account age
-  var firstLogin=localStorage.getItem('dd_music_first_login')||'';
-  if(!firstLogin){firstLogin=String(Date.now());localStorage.setItem('dd_music_first_login',firstLogin)}
-  var days=Math.max(1,Math.floor((Date.now()-parseInt(firstLogin))/(1000*60*60*24)));
+  // Track distinct usage days
+  var today=new Date();var dayKey=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  try{var daysSet=JSON.parse(localStorage.getItem('dd_music_days')||'[]');if(daysSet.indexOf(dayKey)<0){daysSet.push(dayKey);localStorage.setItem('dd_music_days',JSON.stringify(daysSet))}}catch{daysSet=[dayKey];localStorage.setItem('dd_music_days',JSON.stringify(daysSet))}
+  var days=daysSet.length;
   // Estimate listening time from play counts
   var totalPlays=0;for(var id in playCounts)totalPlays+=playCounts[id];
   var listenMin=Math.round(totalPlays*3.5);
   var listenStr=listenMin>=60?Math.floor(listenMin/60)+'小时'+(listenMin%60)+'分钟':listenMin+'分钟';
+  // Build heatmap HTML (52 weeks x 7 days)
+  var heatmapHtml=buildHeatmap(daysSet);
   c.innerHTML='<div class="mine-info-card">'+
+    '<div class="mine-logout-icon" id="btnLogout" title="退出登录"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></div>'+
     '<div class="mine-avatar-wrap" id="mineAvatarWrap">'+(avatar?'<div class="login-avatar-fallback" style="width:80px;height:80px;font-size:32px">'+escHtml(name.charAt(0).toUpperCase())+'</div>':'<div class="mine-avatar-fallback" style="width:80px;height:80px;font-size:32px">'+escHtml(name.charAt(0).toUpperCase())+'</div>')+'</div>'+
     '<div class="mine-user-name">'+escHtml(name)+'</div>'+
     '<div class="mine-user-login">@'+escHtml(login)+'</div>'+
@@ -125,17 +128,29 @@ function renderMineInfo(c){
       '<div class="mine-stat"><div class="mine-stat-val">'+totalPlays+'</div><div class="mine-stat-label">播放次数</div></div>'+
       '<div class="mine-stat"><div class="mine-stat-val">'+listenStr+'</div><div class="mine-stat-label">听歌时长</div></div>'+
     '</div>'+
-    '<button class="btn-logout" id="btnLogout">退出登录</button>'+
+    '<div class="mine-heatmap">'+heatmapHtml+'</div>'+
   '</div>';
   var lo=$('#btnLogout');if(lo)lo.addEventListener('click',doLogout);
-  // Preload avatar for mine info card
-  if(avatar){var aw=$('#mineAvatarWrap');if(aw){var mi=new Image();mi.className='mine-avatar';mi.onload=function(){aw.innerHTML='';aw.appendChild(mi)};mi.onerror=function(){/* keep fallback */};mi.src=avatar}}
+  if(avatar){var aw=$('#mineAvatarWrap');if(aw){var mi=new Image();mi.className='mine-avatar';mi.onload=function(){aw.innerHTML='';aw.appendChild(mi)};mi.onerror=function(){};mi.src=avatar}}
 }
 
 function doLogout(){
   userState.github={token:'',login:'',name:'',avatar:'',id:'',loggedIn:false};
   saveUserState();updateLoginBtn();showToast('已退出登录');
   if(currentView==='mine'){switchView('home');$$('#platformTabs .platform-tab').forEach(function(t){t.classList.remove('active')});var n=$('[data-platform="netease"]');if(n)n.classList.add('active');currentPlatform='netease';loadHome()}
+}
+
+function buildHeatmap(daysSet){
+  var today=new Date();var cells='';
+  for(var w=51;w>=0;w--){
+    for(var d=0;d<7;d++){
+      var cellDate=new Date(today);cellDate.setDate(cellDate.getDate()-(w*7+(6-d)));
+      var key=cellDate.getFullYear()+'-'+String(cellDate.getMonth()+1).padStart(2,'0')+'-'+String(cellDate.getDate()).padStart(2,'0');
+      var lvl=daysSet.indexOf(key)>=0?'l1':'';
+      cells+='<div class="mine-heatmap-cell'+lvl+'" title="'+key+'"></div>';
+    }
+  }
+  return'<div class="mine-heatmap-title">听歌活跃度（近一年）</div><div class="mine-heatmap-grid">'+cells+'</div>';
 }
 
 function renderFavorites(c){
@@ -145,11 +160,47 @@ function renderFavorites(c){
   songs=list;renderSongList(c,list,true);
 }
 
-function renderFrequent(c){
-  var freq=getFrequentSongs();
-  if(!freq.length){c.innerHTML='<div class="empty-hint">还没有常听歌曲<br><span style="font-size:11px;color:var(--text3)">播放超过10次的歌曲会出现在这里</span></div>';return}
-  c.innerHTML='<div class="category-header"><div class="category-name">常听歌曲</div></div>';
-  songs=freq;renderSongList(c,freq,true);
+function renderRecent(c){
+  if(!userState.github.loggedIn){c.innerHTML='<div class="empty-hint"><p>请先登录</p><p style="font-size:11px;color:var(--text3);margin-top:6px">登录后可查看最近听歌记录</p></div>';return}
+  var raw=[];try{raw=JSON.parse(localStorage.getItem('dd_music_listen_history')||'[]')}catch{}
+  if(!raw.length){c.innerHTML='<div class="empty-hint">暂无听歌记录</div>';return}
+  // Dedup: same song id only keeps latest record
+  var seen={},unique=[];
+  for(var i=raw.length-1;i>=0;i--){
+    var r=raw[i],rid=r.id||'';
+    if(!rid||seen[rid])continue;
+    seen[rid]=true;
+    var pn={netease:'网易云',qq:'QQ音乐',kugou:'酷狗',kuwo:'酷我',bilibili:'B站',migu:'咪咕'};
+    unique.push({
+      id:rid,
+      title:r.title||'未知',
+      artist:r.artist||'',
+      album:r.album||'',
+      source:r.source||'',
+      sourceName:pn[r.source]||r.source||'',
+      ts:r.ts||0
+    });
+    if(unique.length>=50)break;
+  }
+  unique.reverse();
+  if(!unique.length){c.innerHTML='<div class="empty-hint">暂无听歌记录</div>';return}
+  c.innerHTML='<div class="category-header"><div class="category-name">最近听歌</div></div><div class="song-list">';
+  var html=unique.map(function(s,i){
+    var cv='',fav=isFav(s.id);
+    var tStr=s.ts?new Date(s.ts).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    return'<div class="song-item" data-recent-idx="'+i+'"><div class="song-idx">'+(i+1)+'</div><div class="song-info"><div class="song-title">'+escHtml(s.title)+'</div><div class="song-sub">'+escHtml(s.artist)+(s.album?' · '+escHtml(s.album):'')+(s.sourceName?' · '+escHtml(s.sourceName):'')+' <span class="song-dur">'+tStr+'</span></div></div><div class="song-actions"><button class="btn-action btn-fav '+(fav?'active':'')+'" data-recent-idx="'+i+'" title="收藏"><svg viewBox="0 0 24 24" width="14" height="14" fill="'+(fav?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></button></div></div>';
+  }).join('');
+  var existing=c.innerHTML;
+  c.innerHTML=existing+html+'</div>';
+  c.querySelectorAll('.song-item[data-recent-idx]').forEach(function(item){
+    var idx=parseInt(item.dataset.recentIdx);
+    item.addEventListener('click',function(e){if(e.target.closest('.btn-action'))return;
+      var s=unique[idx];
+      var fakeSong={id:s.id,title:s.title,artist:s.artist,source:s.source};
+      showAudioWave();resolveUrl(fakeSong).then(function(u){if(u){queue=[fakeSong];currentIndex=0;updateQueueUI();loadAndPlay(fakeSong,u)}else{hideAudioWave();showToast('暂无播放源')}}).catch(function(){hideAudioWave();showToast('播放失败')})
+    });
+    item.querySelector('.btn-fav').addEventListener('click',function(e){e.stopPropagation();toggleFavorite(unique[idx])});
+  });
 }
 
 // -- Settings --
@@ -308,11 +359,11 @@ function updateLoginBtn(){
 }
 
 // -- Song Actions --
-async function toggleFavorite(song){var id=song.id||'';if(!id)return;var idx=favorites.findIndex(function(f){return f.id===id});if(idx>=0){favorites.splice(idx,1);showToast('取消收藏');if(userState.github.loggedIn)apiCall({action:'favorite_remove',github_id:userState.github.id,song_id:id}).catch(function(){})}else{favorites.push({id:id,title:song.title||song.name||'',artist:song.artist||'',img_url:https(song.img_url||song.cover||''),source:song.source||currentPlatform,ts:Date.now()});showToast('已收藏');if(userState.github.loggedIn)apiCall({action:'favorite_add',github_id:userState.github.id,song_id:id,song_title:song.title||song.name||'',song_artist:song.artist||'',song_cover:https(song.img_url||song.cover||''),song_source:song.source||currentPlatform}).catch(function(){})}saveFavorites();if(nowPlayingOpen)updateNpFavBtn();if(currentView==='detail'){songs=currentPlaylist?songs:songs;renderSongList($('#songList'),songs,true)}else if(currentView==='search')renderSongList($('#searchList'),songs,true);else if(currentView==='mine')renderMineContent()}
+async function toggleFavorite(song){var id=song.id||'';if(!id)return;var idx=favorites.findIndex(function(f){return f.id===id});if(idx>=0){favorites.splice(idx,1);showToast('取消收藏');if(userState.github.loggedIn)apiCall({action:'favorite_remove',github_id:userState.github.id,song_id:id}).catch(function(){})}else{favorites.push({id:id,title:song.title||song.name||'',artist:song.artist||'',img_url:https(song.img_url||song.cover||''),source:song.source||currentPlatform,ts:Date.now()});showToast('已收藏');if(userState.github.loggedIn)apiCall({action:'favorite_add',github_id:userState.github.id,song_id:id,song_title:song.title||song.name||'',song_artist:song.artist||'',song_cover:https(song.img_url||song.cover||''),song_source:song.source||currentPlatform}).catch(function(){})}saveFavorites();if(nowPlayingOpen)updateNpFavBtn();updatePlayerFavBtn();if(currentView==='detail'){songs=currentPlaylist?songs:songs;renderSongList($('#songList'),songs,true)}else if(currentView==='search')renderSongList($('#searchList'),songs,true);else if(currentView==='mine')renderMineContent()}
 
 async function downloadSong(song){var tid=song.id||'';if(!tid)return;showToast('获取下载链接...');try{var p=song.source||currentPlatform;if(p==='mine')p='netease';var d=await apiCall({action:'bootstrap',platform:p,trackId:tid});if(d.url){showToast('下载中...');try{var r=await fetch(d.url);if(r.ok){var b=await r.blob();var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download=(song.title||song.name||'music')+'.mp3';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(u)},1000);showToast('下载完成')}else throw new Error('status')}catch(corsErr){var a=document.createElement('a');a.href=d.url;a.download=(song.title||song.name||'music')+'.mp3';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('已打开下载链接')}}else showToast('暂无下载源')}catch(e){showToast('下载失败')}}
 
-function shareSong(song){var id=song.id||'',p=song.source||currentPlatform,t=song.title||song.name||'分享音乐',a=song.artist||'',u='https://ddmusic.eu.cc/#play='+p+'_'+encodeURIComponent(id),txt=t+' - '+a+' | 顶点音乐 '+u;if(navigator.share)navigator.share({title:t+' - '+a,url:u}).catch(function(){});else navigator.clipboard.writeText(txt).then(function(){showToast('链接已复制')}).catch(function(){showToast('分享失败')})}
+function shareSong(song){var id=song.id||'',p=song.source||currentPlatform,t=song.title||song.name||'分享音乐',a=song.artist||'';var u='https://ddmusic.eu.cc/#play='+p+'_'+encodeURIComponent(id);navigator.clipboard.writeText(u).then(function(){showToast('链接已复制，打开即可播放')}).catch(function(){showToast('复制失败')})}
 
 // -- Audio wave loading indicator --
 var _audioWaveEl=null;
@@ -406,7 +457,7 @@ function loadAndPlay(song,url){hideAudioWave();audio.src=url;audio.play().catch(
 
 function updateNowPlaying(song){currentSong=song;var t=song.title||song.name||'未知',a=song.artist||song.artistsname||song.author||'',cv=https(song.img_url||song.cover||song.img||song.picUrl||song.pic||(song.al&&song.al.picUrl)||'');$('#playerTitle').textContent=t;$('#playerArtist').textContent=a;var img=$('#playerCover'),logo=$('#playerCoverLogo');if(cv){img.src=cv;img.style.display='';logo.style.display='none'}else{img.style.display='none';logo.style.display=''}var pn={netease:'网易云',qq:'QQ音乐',kugou:'酷狗',kuwo:'酷我',bilibili:'B站',migu:'咪咕'};$('#platformBadge').textContent=pn[currentPlatform]||'';document.title=t+' - '+a+' | 顶点音乐';if(nowPlayingOpen)updateNowPlayingPage()}
 
-function recordListen(song){try{var h=JSON.parse(localStorage.getItem('dd_music_listen_history')||'[]');h.push({id:song.id,title:song.title||song.name,artist:song.artist,ts:Date.now()});if(h.length>500)h=h.slice(-500);localStorage.setItem('dd_music_listen_history',JSON.stringify(h))}catch{};var id=song.id||'';if(id){playCounts[id]=(playCounts[id]||0)+1;savePlayCounts();if(userState.github.loggedIn)apiCall({action:'listen_record',github_id:userState.github.id,song_id:id,song_title:song.title||song.name||'',song_artist:song.artist||'',song_source:song.source||currentPlatform}).catch(function(){})}}
+function recordListen(song){try{var h=JSON.parse(localStorage.getItem('dd_music_listen_history')||'[]');h.push({id:song.id,title:song.title||song.name,artist:song.artist,album:song.album||'',source:song.source||currentPlatform,ts:Date.now()});if(h.length>500)h=h.slice(-500);localStorage.setItem('dd_music_listen_history',JSON.stringify(h))}catch{};var id=song.id||'';if(id){playCounts[id]=(playCounts[id]||0)+1;savePlayCounts();if(userState.github.loggedIn)apiCall({action:'listen_record',github_id:userState.github.id,song_id:id,song_title:song.title||song.name||'',song_artist:song.artist||'',song_source:song.source||currentPlatform}).catch(function(){})}}
 
 function addToQueue(idx){var s=songs[idx];if(!s)return;queue.push(s);updateQueueUI();showToast('已加入队列')}
 function removeFromQueue(idx){queue.splice(idx,1);if(currentIndex>=queue.length)currentIndex=queue.length-1;updateQueueUI()}
@@ -415,6 +466,9 @@ function updateQueueUI(){var l=$('#queueList');$('#queueCount').textContent=queu
 
 // -- Loop --
 $('#btnLoop').addEventListener('click',function(){if(loopMode==='none'){loopMode='one';audio.loop=true;showToast('单曲循环')}else if(loopMode==='one'){loopMode='all';audio.loop=false;showToast('列表循环')}else{loopMode='none';audio.loop=false;showToast('取消循环')}updateLoopIcon()});
+// Player bar favorite button
+$('#btnPlayerFav').addEventListener('click',function(){if(!currentSong)return;toggleFavorite(currentSong);updatePlayerFavBtn()});
+function updatePlayerFavBtn(){var btn=$('#btnPlayerFav'),icon=$('#playerFavIcon');if(!btn||!currentSong)return;var fav=isFav(currentSong.id||'');if(fav){btn.classList.add('active');icon.setAttribute('fill','currentColor')}else{btn.classList.remove('active');icon.setAttribute('fill','none')}}
 function updateLoopIcon(){var i=$('#loopIcon'),b=$('#btnLoop');b.classList.remove('loop-one','loop-all');if(loopMode==='one'){b.classList.add('loop-one');i.innerHTML='<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/><text x="12" y="15" text-anchor="middle" font-size="6" fill="currentColor" stroke="none">1</text>'}else if(loopMode==='all'){b.classList.add('loop-all');i.innerHTML='<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>'}else{i.innerHTML='<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>'}}
 
 // -- Player controls --
@@ -426,10 +480,10 @@ $('#npProgressBar').addEventListener('click',function(e){if(!audio.duration)retu
 // NP action buttons
 $('#npFav').addEventListener('click',function(){if(currentSong)toggleFavorite(currentSong);updateNpFavBtn()});
 $('#npDownload').addEventListener('click',function(){if(currentSong)downloadSong(currentSong)});
-$('#npShare').addEventListener('click',function(){if(currentSong){var t=currentSong.title||currentSong.name||'',a=currentSong.artist||'',u=currentSong.source_url||'';if(navigator.share){navigator.share({title:t+' - '+a,text:t+' - '+a,url:u}).catch(function(){})}else{navigator.clipboard.writeText(t+' - '+a+(u?' '+u:'')).then(function(){showToast('已复制到剪贴板')}).catch(function(){showToast('分享失败')})}}});
+$('#npShare').addEventListener('click',function(){if(currentSong)shareSong(currentSong)});
 function updateNpFavBtn(){var btn=$('#npFav');if(!btn||!currentSong)return;var fav=isFav(currentSong.id||'');if(fav){btn.classList.add('active');btn.querySelector('svg').setAttribute('fill','currentColor')}else{btn.classList.remove('active');btn.querySelector('svg').setAttribute('fill','none')}}
 
-function updatePlayBtn(){var i=$('#playIcon'),ni=$('#npPlayIcon'),cw=$('#playerCoverWrap');if(isPlaying){i.innerHTML='<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';ni.innerHTML='<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';$('#btnPlay').classList.add('playing');$('#npPlay').classList.add('playing');$('#player').classList.add('active');$('#npVinyl').classList.add('spinning');if(cw)cw.classList.add('spinning')}else{i.innerHTML='<path d="M8 5v14l11-7z"/>';ni.innerHTML='<path d="M8 5v14l11-7z"/>';$('#btnPlay').classList.remove('playing');$('#npPlay').classList.remove('playing');$('#player').classList.remove('active');$('#npVinyl').classList.remove('spinning');if(cw)cw.classList.remove('spinning')}}
+function updatePlayBtn(){var i=$('#playIcon'),ni=$('#npPlayIcon'),cw=$('#playerCoverWrap');if(isPlaying){i.innerHTML='<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';ni.innerHTML='<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';$('#btnPlay').classList.add('playing');$('#npPlay').classList.add('playing');$('#player').classList.add('active');$('#npVinyl').classList.add('spinning');if(cw)cw.classList.add('spinning')}else{i.innerHTML='<path d="M8 5v14l11-7z"/>';ni.innerHTML='<path d="M8 5v14l11-7z"/>';$('#btnPlay').classList.remove('playing');$('#npPlay').classList.remove('playing');$('#player').classList.remove('active');$('#npVinyl').classList.remove('spinning');if(cw)cw.classList.remove('spinning')}updatePlayerFavBtn()}
 
 audio.addEventListener('timeupdate',function(){if(!audio.duration)return;var p=(audio.currentTime/audio.duration)*100;$('#progressFill').style.width=p+'%';$('#currentTime').textContent=fmtTime(audio.currentTime);$('#duration').textContent=fmtTime(audio.duration);if(nowPlayingOpen){$('#npProgressFill').style.width=p+'%';$('#npCurrentTime').textContent=fmtTime(audio.currentTime);$('#npDuration').textContent=fmtTime(audio.duration);syncLyric(audio.currentTime)}});
 $('#progressBar').addEventListener('click',function(e){if(!audio.duration)return;var r=e.currentTarget.getBoundingClientRect();audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration});
@@ -448,6 +502,26 @@ $$('#platformTabs .platform-tab').forEach(function(tab){tab.addEventListener('cl
 document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.code==='Space'){e.preventDefault();$('#btnPlay').click()}if(e.code==='Escape'&&nowPlayingOpen)closeNowPlaying()});
 
 checkOAuthCallback();
+// Auto-play from shared link: #play=platform_id
+(function(){
+  var h=location.hash;
+  if(h.startsWith('#play=')){
+    var parts=h.slice(6).split('_');
+    var plat=parts[0]||'netease',tid=decodeURIComponent(parts.slice(1).join('_'));
+    if(tid){
+      history.replaceState(null,'','/');
+      // Wait for API ready then play
+      setTimeout(function(){
+        var fakeSong={id:tid,title:'',artist:'',source:plat};
+        showAudioWave();
+        resolveUrl(fakeSong).then(function(u){
+          if(u)loadAndPlay(fakeSong,u);
+          else{hideAudioWave();showToast('暂无播放源')}
+        }).catch(function(){hideAudioWave();showToast('播放失败')});
+      },800);
+    }
+  }
+})();
 // Debug: show login state on load
 console.log('[DD] After checkOAuth: loggedIn='+userState.github.loggedIn+(userState.github.loggedIn?' name='+userState.github.name+' avatar='+(userState.github.avatar||'').substring(0,50):''));
 showToast(userState.github.loggedIn?'已登录: '+userState.github.name:'未登录');

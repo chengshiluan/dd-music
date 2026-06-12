@@ -33,7 +33,9 @@ a{color:inherit;text-decoration:none}
 .menu-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px}
 
 /* === Mine Info Card (v3.3) === */
-.mine-info-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 20px;text-align:center}
+.mine-info-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 20px;text-align:center;position:relative}
+.mine-logout-icon{position:absolute;top:12px;right:12px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--text3);border-radius:50%;cursor:pointer;transition:var(--transition)}
+.mine-logout-icon:hover{background:var(--glass2);color:#ff4757}
 .mine-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent)}
 .mine-avatar-fallback{width:80px;height:80px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700}
 .mine-user-name{font-size:18px;font-weight:700}
@@ -42,8 +44,16 @@ a{color:inherit;text-decoration:none}
 .mine-stat{flex:1;text-align:center}
 .mine-stat-val{font-size:20px;font-weight:700;color:var(--accent)}
 .mine-stat-label{font-size:11px;color:var(--text3);margin-top:2px}
-.btn-logout{margin-top:20px;padding:10px 30px;background:var(--glass2);color:var(--text2);border-radius:20px;font-size:13px;font-weight:500;transition:var(--transition)}
-.btn-logout:hover{background:var(--accent);color:#fff}
+.mine-heatmap{width:100%;margin-top:8px;padding:8px 0}
+.mine-heatmap-title{font-size:12px;color:var(--text3);margin-bottom:6px;text-align:left}
+.mine-heatmap-grid{display:grid;grid-template-columns:repeat(52,1fr);grid-template-rows:repeat(7,1fr);gap:2px;width:100%;aspect-ratio:52/7}
+.mine-heatmap-cell{border-radius:2px;background:var(--glass2);min-height:0}
+.mine-heatmap-cell.l1{background:rgba(216,30,6,.2)}
+.mine-heatmap-cell.l2{background:rgba(216,30,6,.4)}
+.mine-heatmap-cell.l3{background:rgba(216,30,6,.65)}
+.mine-heatmap-cell.l4{background:rgba(216,30,6,.9)}
+.btn-player-fav{color:var(--text3);transition:var(--transition)}
+.btn-player-fav.active{color:#ff4757}
 
 /* === Mine Plat Tabs (歌单子视图) === */
 .platform-tabs{display:flex;gap:4px;padding:10px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -100,7 +110,7 @@ a{color:inherit;text-decoration:none}
 .mine-tab{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:var(--transition)}
 .mine-tab:hover{background:var(--glass2);color:var(--text1)}
 .mine-tab.active{background:var(--glass2);color:var(--text1);font-weight:600}
-.mine-content{flex:1;min-width:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.mine-content{flex:1;min-width:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
 
 /* === Mine Plat Tabs (歌单子视图) === */
 .mine-plat-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
