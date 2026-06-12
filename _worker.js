@@ -466,7 +466,7 @@ async function dbCreateShare(db, platform, songId, title, artist, cover, shareUs
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   let code = '';
   const arr = new Uint8Array(10);
-  await crypto.subtle.getRandomValues(arr);
+  crypto.getRandomValues(arr);
   for (let i = 0; i < 10; i++) code += chars[arr[i] % chars.length];
   await db.prepare(
     'INSERT INTO dd_share (code, platform, song_id, title, artist, cover, share_user, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
