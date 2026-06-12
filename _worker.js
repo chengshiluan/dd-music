@@ -456,6 +456,35 @@ async function githubOAuth(code) {
   };
 }
 
+// ─── D1 Share ───
+async function dbCreateShare(db, platform, songId, title, artist, cover, shareUser) {
+  if (!db) return null;
+  // Dedup: same user + same song → return existing code
+  const existing = await db.prepare('SELECT code FROM dd_share WHERE platform=? AND song_id=? AND share_user=?').bind(platform, songId, shareUser).first();
+  if (existing) return existing.code;
+  // Generate 10-char random code
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let code = '';
+  const arr = new Uint8Array(10);
+  await crypto.subtle.getRandomValues(arr);
+  for (let i = 0; i < 10; i++) code += chars[arr[i] % chars.length];
+  await db.prepare(
+    'INSERT INTO dd_share (code, platform, song_id, title, artist, cover, share_user, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(code, platform, songId, title || '', artist || '', cover || '', shareUser || '', Math.floor(Date.now() / 1000)).run();
+  return code;
+}
+
+async function dbGetShare(db, code) {
+  if (!db) return null;
+  return await db.prepare('SELECT * FROM dd_share WHERE code=?').bind(code).first();
+}
+
+// ─── D1 Init (create tables if not exist) ───
+async function dbInit(db) {
+  if (!db) return;
+  await db.prepare(`CREATE TABLE IF NOT EXISTS dd_share (code TEXT PRIMARY KEY, platform TEXT NOT NULL, song_id TEXT NOT NULL, title TEXT DEFAULT '', artist TEXT DEFAULT '', cover TEXT DEFAULT '', share_user TEXT DEFAULT '', created_at INTEGER DEFAULT 0)`).run();
+}
+
 // ─── D1 User Database ───
 async function dbUpsertUser(db, ghData) {
   if (!db) return null;
@@ -655,6 +684,23 @@ async function apiRouter(url, env) {
         return { ok: true, history: history };
       }
 
+      case 'share_create': {
+        const platform = url.searchParams.get('platform') || '';
+        const songId = url.searchParams.get('song_id') || '';
+        const shareUser = url.searchParams.get('share_user') || '';
+        if (!platform || !songId) return { ok: false, error: 'missing platform or song_id' };
+        const code = await dbCreateShare(env?.dd_music_db, platform, songId, url.searchParams.get('title') || '', url.searchParams.get('artist') || '', url.searchParams.get('cover') || '', shareUser);
+        return { ok: true, code: code };
+      }
+
+      case 'share_get': {
+        const code = url.searchParams.get('code') || '';
+        if (!code) return { ok: false, error: 'missing code' };
+        const share = await dbGetShare(env?.dd_music_db, code);
+        if (!share) return { ok: false, error: 'not found' };
+        return { ok: true, platform: share.platform, song_id: share.song_id, title: share.title, artist: share.artist, cover: share.cover, share_user: share.share_user };
+      }
+
       default:
         return { error: 'unknown action: ' + a };
     }
@@ -701,6 +747,7 @@ export default {
     }
 
     if (url.pathname.startsWith('/api/')) {
+      await dbInit(env?.dd_music_db);
       const result = await apiRouter(url, env);
       return new Response(JSON.stringify(result), {
         headers: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=60' }

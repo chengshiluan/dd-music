@@ -363,7 +363,7 @@ async function toggleFavorite(song){var id=song.id||'';if(!id)return;var idx=fav
 
 async function downloadSong(song){var tid=song.id||'';if(!tid)return;showToast('获取下载链接...');try{var p=song.source||currentPlatform;if(p==='mine')p='netease';var d=await apiCall({action:'bootstrap',platform:p,trackId:tid});if(d.url){showToast('下载中...');try{var r=await fetch(d.url);if(r.ok){var b=await r.blob();var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download=(song.title||song.name||'music')+'.mp3';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(u)},1000);showToast('下载完成')}else throw new Error('status')}catch(corsErr){var a=document.createElement('a');a.href=d.url;a.download=(song.title||song.name||'music')+'.mp3';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('已打开下载链接')}}else showToast('暂无下载源')}catch(e){showToast('下载失败')}}
 
-function shareSong(song){var id=song.id||'',p=song.source||currentPlatform,t=song.title||song.name||'分享音乐',a=song.artist||'';var u='https://ddmusic.eu.cc/#play='+p+'_'+encodeURIComponent(id);navigator.clipboard.writeText(u).then(function(){showToast('链接已复制，打开即可播放')}).catch(function(){showToast('复制失败')})}
+async function shareSong(song){var id=song.id||'',p=song.source||currentPlatform;if(!id){showToast('分享失败');return}try{var d=await apiCall({action:'share_create',platform:p,song_id:id,title:song.title||song.name||'',artist:song.artist||'',cover:https(song.img_url||song.cover||''),share_user:userState.github.loggedIn?userState.github.login:''});if(d&&d.code){var u='https://ddmusic.eu.cc/#s='+d.code;navigator.clipboard.writeText(u).then(function(){showToast('链接已复制，打开即可播放')}).catch(function(){showToast('复制失败')})}else{showToast('分享失败')}}catch(e){showToast('分享失败')}}
 
 // -- Audio wave loading indicator --
 var _audioWaveEl=null;
@@ -502,22 +502,31 @@ $$('#platformTabs .platform-tab').forEach(function(tab){tab.addEventListener('cl
 document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.code==='Space'){e.preventDefault();$('#btnPlay').click()}if(e.code==='Escape'&&nowPlayingOpen)closeNowPlaying()});
 
 checkOAuthCallback();
-// Auto-play from shared link: #play=platform_id
+// Auto-play from shared link: #s=CODE (DB lookup) or #play=platform_id (legacy)
 (function(){
   var h=location.hash;
-  if(h.startsWith('#play=')){
+  if(h.startsWith('#s=')){
+    var code=h.slice(3);
+    history.replaceState(null,'','/');
+    setTimeout(function(){
+      apiCall({action:'share_get',code:code}).then(function(d){
+        if(d&&d.ok){
+          var s={id:d.song_id,title:d.title||'',artist:d.artist||'',source:d.platform};
+          if(d.cover) s.img_url=d.cover;
+          showAudioWave();
+          resolveUrl(s).then(function(u){if(u)loadAndPlay(s,u);else{hideAudioWave();showToast('暂无播放源')}}).catch(function(){hideAudioWave();showToast('播放失败')})
+        }else{showToast('分享链接无效')}
+      }).catch(function(){showToast('分享链接无效')});
+    },800);
+  }else if(h.startsWith('#play=')){
     var parts=h.slice(6).split('_');
     var plat=parts[0]||'netease',tid=decodeURIComponent(parts.slice(1).join('_'));
     if(tid){
       history.replaceState(null,'','/');
-      // Wait for API ready then play
       setTimeout(function(){
         var fakeSong={id:tid,title:'',artist:'',source:plat};
         showAudioWave();
-        resolveUrl(fakeSong).then(function(u){
-          if(u)loadAndPlay(fakeSong,u);
-          else{hideAudioWave();showToast('暂无播放源')}
-        }).catch(function(){hideAudioWave();showToast('播放失败')});
+        resolveUrl(fakeSong).then(function(u){if(u)loadAndPlay(fakeSong,u);else{hideAudioWave();showToast('暂无播放源')}}).catch(function(){hideAudioWave();showToast('播放失败')});
       },800);
     }
   }
