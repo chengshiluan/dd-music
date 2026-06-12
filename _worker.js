@@ -54,43 +54,6 @@ function htmlDecode(str) {
 }
 
 // ─── MD5 (for B站 app signing & Wbi signing) ───
-function md5(str) {
-  function add32(a, b) { return (a + b) & 0xFFFFFFFF; }
-  function cmn(q, a, b, x, s, t) { return add32(add32(add32(a, q), add32(x, t)), s); }
-  function ff(a, b, c, d, x, s, t) { return cmn((b & c) | ((~b) & d), a, b, x, s, t); }
-  function gg(a, b, c, d, x, s, t) { return cmn((b & d) | (c & (~d)), a, b, x, s, t); }
-  function hh(a, b, c, d, x, s, t) { return cmn(b ^ c ^ d, a, b, x, s, t); }
-  function ii(a, b, c, d, x, s, t) { return cmn(c ^ (b | (~d)), a, b, x, s, t); }
-  function cycle(x, k) {
-    var a=x[0],b=x[1],c=x[2],d=x[3];
-    a=ff(a,b,c,d,k[0],7,-680876936);d=ff(d,a,b,c,k[1],12,-389564586);c=ff(c,d,a,b,k[2],17,606105819);b=ff(b,c,d,a,k[3],22,-1044525330);
-    a=ff(a,b,c,d,k[4],7,-176418897);d=ff(d,a,b,c,k[5],12,1200080426);c=ff(c,d,a,b,k[6],17,-1473231341);b=ff(b,c,d,a,k[7],22,-45705983);
-    a=ff(a,b,c,d,k[8],7,1732584194);d=ff(d,a,b,c,k[9],12,-1926607734);c=ff(c,d,a,b,k[10],17,-378558);b=ff(b,c,d,a,k[11],22,-2022584463);
-    a=ff(a,b,c,d,k[12],7,1839030562);d=ff(d,a,b,c,k[13],12,-35309556);c=ff(c,d,a,b,k[14],17,-1530992060);b=ff(b,c,d,a,k[15],22,1272893353);
-    a=gg(a,b,c,d,k[1],5,-165796510);d=gg(d,a,b,c,k[6],9,-1069501632);c=gg(c,d,a,b,k[11],14,643717713);b=gg(b,c,d,a,k[0],20,-373897302);
-    a=gg(a,b,c,d,k[5],5,-701558691);d=gg(d,a,b,c,k[10],9,38016083);c=gg(c,d,a,b,k[15],14,-660478335);b=gg(b,c,d,a,k[4],20,-405537848);
-    a=gg(a,b,c,d,k[9],5,568446438);d=gg(d,a,b,c,k[14],9,-1019803690);c=gg(c,d,a,b,k[3],14,-187363961);b=gg(b,c,d,a,k[8],20,1163531501);
-    a=gg(a,b,c,d,k[13],5,-1444681467);d=gg(d,a,b,c,k[2],9,-51403784);c=gg(c,d,a,b,k[7],14,1735328473);b=gg(b,c,d,a,k[12],20,-1926607734);
-    a=hh(a,b,c,d,k[5],4,-378558);d=hh(d,a,b,c,k[8],11,-2022584463);c=hh(c,d,a,b,k[11],16,1839030562);b=hh(b,c,d,a,k[14],23,-35309556);
-    a=hh(a,b,c,d,k[1],4,-1530992060);d=hh(d,a,b,c,k[4],11,1272893353);c=hh(c,d,a,b,k[7],16,-155497632);b=hh(b,c,d,a,k[10],23,-1094730640);
-    a=hh(a,b,c,d,k[13],4,681279174);d=hh(d,a,b,c,k[0],11,-358537222);c=hh(c,d,a,b,k[3],16,-722521979);b=hh(b,c,d,a,k[6],23,76029189);
-    a=hh(a,b,c,d,k[9],4,-640364487);d=hh(d,a,b,c,k[12],11,-421815835);c=hh(c,d,a,b,k[15],16,530742520);b=hh(b,c,d,a,k[2],23,-995338651);
-    a=ii(a,b,c,d,k[0],6,-198630844);d=ii(d,a,b,c,k[7],10,1126891415);c=ii(c,d,a,b,k[14],15,-1416354905);b=ii(b,c,d,a,k[5],21,-57434055);
-    a=ii(a,b,c,d,k[12],6,1700485571);d=ii(d,a,b,c,k[3],10,-1894986606);c=ii(c,d,a,b,k[10],15,-1051523);b=ii(b,c,d,a,k[1],21,-2054922799);
-    a=ii(a,b,c,d,k[8],6,1873313359);d=ii(d,a,b,c,k[15],10,-30611744);c=ii(c,d,a,b,k[6],15,-1560194385);b=ii(b,c,d,a,k[13],21,1309151649);
-    a=ii(a,b,c,d,k[4],6,-145523070);d=ii(d,a,b,c,k[11],10,-1120210379);c=ii(c,d,a,b,k[2],15,718787259);b=ii(b,c,d,a,k[9],21,-343485551);
-    x[0]=add32(a,x[0]);x[1]=add32(b,x[1]);x[2]=add32(c,x[2]);x[3]=add32(d,x[3]);
-  }
-  function blk(s){var b=[],i;for(i=0;i<64;i+=4)b[i>>2]=s.charCodeAt(i)+(s.charCodeAt(i+1)<<8)+(s.charCodeAt(i+2)<<16)+(s.charCodeAt(i+3)<<24);return b;}
-  var n=str.length,st=[1732584193,-271733879,-1732584194,271733878],i;
-  for(i=64;i<=n;i+=64)cycle(st,blk(str.substring(i-64,i)));
-  str=str.substring(i-64);var tl=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-  for(i=0;i<str.length;i++)tl[i>>2]|=str.charCodeAt(i)<<(i%4<<3);
-  tl[i>>2]|=0x80<<(i%4<<3);if(i>55){cycle(st,tl);for(i=0;i<16;i++)tl[i]=0;}
-  tl[14]=n*8;cycle(st,tl);
-  return('0000000'+(st[0]>>>0).toString(16)).slice(-8)+('0000000'+(st[1]>>>0).toString(16)).slice(-8)+('0000000'+(st[2]>>>0).toString(16)).slice(-8)+('0000000'+(st[3]>>>0).toString(16)).slice(-8);
-}
-
 // ─── Netease ───
 async function neSearch(kw, pg, neCookie) {
   const offset = 20 * ((pg || 1) - 1);
@@ -497,326 +460,108 @@ async function kwPlaylistTracks(listId) {
 }
 
 // ─── Bilibili ───
-// Multi-layer approach: Mobile API → Wbi-signed Web API → Hardcoded fallback
-// B站 blocks CF Workers IPs (-412) on api.bilibili.com, so we try app.bilibili.com first
+// B站 blocks CF Workers IPs (-412). Route all B站 API calls through Vercel proxy.
+const BILI_PROXY = 'https://bili-proxy-ten.vercel.app/api';
 
-const BI_APPKEY = '1d8b6e7d45233936';
-const BI_APPSEC = 'b5eb9084928aa2c0ac4e3bb4b0e8a926';
-
-function biAppSign(params) {
-  const ts = String(Math.floor(Date.now() / 1000));
-  const all = { ...params, appkey: BI_APPKEY, build: '6400000', mobi_app: 'android', platform: 'android', ts };
-  const sorted = Object.keys(all).sort().map(k => k + '=' + all[k]).join('');
-  all.sign = md5(sorted + BI_APPSEC);
-  return all;
-}
-
-async function biAppGet(path, params) {
-  const signed = biAppSign(params);
-  const qs = Object.keys(signed).map(k => k + '=' + encodeURIComponent(signed[k])).join('&');
-  return proxyGet('https://app.bilibili.com' + path + '?' + qs, 'https://www.bilibili.com/');
-}
-
-// Wbi signing (for newer web API endpoints)
-const WBI_MIXIN_TAB = [46,47,18,2,53,8,23,32,15,50,10,31,58,3,45,35,27,43,5,49,33,9,42,19,29,28,14,39,12,38,41,13,37,48,7,16,24,55,40,61,26,17,0,1,60,51,30,4,22,25,54,21,56,59,6,63,57,62,11,36,20,34,44,52];
-let _wbiKeys = null, _wbiTs = 0;
-async function biWbiKeys() {
-  if (_wbiKeys && Date.now() - _wbiTs < 600000) return _wbiKeys; // cache 10 min
-  const d = await proxyGet('https://api.bilibili.com/x/web-interface/nav', 'https://www.bilibili.com/');
-  if (d._proxy_error || d.code === -412 || !d.data?.wbi_img) return null;
-  const { img_url, sub_url } = d.data.wbi_img;
-  const imgKey = img_url.split('/').pop().split('.')[0];
-  const subKey = sub_url.split('/').pop().split('.')[0];
-  const mixin = WBI_MIXIN_TAB.reduce((s, i) => s + (imgKey + subKey).charAt(i), '').slice(0, 32);
-  _wbiKeys = mixin; _wbiTs = Date.now();
-  return mixin;
-}
-
-async function biWbiGet(baseUrl, params) {
-  const mixinKey = await biWbiKeys();
-  if (!mixinKey) return { _proxy_error: true, _wbi_failed: true };
-  const wts = Math.floor(Date.now() / 1000);
-  const all = { ...params, wts };
-  const chrFilter = /[!'()*]/g;
-  const qs = Object.keys(all).sort().map(k => encodeURIComponent(k) + '=' + encodeURIComponent(String(all[k]).replace(chrFilter, ''))).join('&');
-  const wRid = md5(qs + mixinKey);
-  return proxyGet(baseUrl + '?' + qs + '&w_rid=' + wRid, 'https://www.bilibili.com/');
-}
-
-// Cookie helpers
-let _biCookies = '', _biCookieTs = 0;
-async function biGetCookies() {
-  if (_biCookies && Date.now() - _biCookieTs < 1800000) return _biCookies;
+// Helper: call B站 via Vercel proxy (AWS IPs, not blocked by B站)
+async function biProxy(action, params = {}) {
+  const qs = Object.entries(params).filter(([,v]) => v !== '' && v !== undefined).map(([k,v]) => k + '=' + encodeURIComponent(String(v))).join('&');
+  const url = BILI_PROXY + '?action=' + action + (qs ? '&' + qs : '');
   try {
-    const r = await fetch('https://www.bilibili.com/', { headers: { 'User-Agent': UA }, redirect: 'follow' });
-    const allCookies = [];
-    try { const vals = r.headers.getAll('set-cookie'); if (Array.isArray(vals)) allCookies.push(...vals); } catch {}
-    const sc = r.headers.get('set-cookie'); if (sc) allCookies.push(sc);
-    let buvid3 = '', bNut = '';
-    for (const c of allCookies) {
-      const m3 = c.match(/buvid3=([^;]+)/); if (m3) buvid3 = m3[1];
-      const mn = c.match(/b_nut=([^;]+)/); if (mn) bNut = mn[1];
-    }
-    if (buvid3) { _biCookies = `buvid3=${buvid3}; b_nut=${bNut}; CURRENT_FNVAL=16`; _biCookieTs = Date.now(); }
-  } catch {}
-  if (!_biCookies) {
-    const chars = 'ABCDEF0123456789';
-    const seg = (n) => Array.from({length:n}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
-    _biCookies = `buvid3=${seg(8)}-${seg(4)}-${seg(4)}-${seg(4)}-${seg(12)}infoc; b_nut=${Math.floor(Date.now()/1000)}; CURRENT_FNVAL=16`;
-    _biCookieTs = Date.now();
+    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    const t = await r.text();
+    return JSON.parse(t);
+  } catch (e) {
+    return { _proxy_error: true, error: String(e) };
   }
-  return _biCookies;
 }
-
-// Browser-like headers for web API (helps bypass some anti-bot checks)
-const BI_WEB_HEADERS = {
-  'Origin': 'https://www.bilibili.com',
-  'Sec-Fetch-Site': 'same-site',
-  'Sec-Fetch-Mode': 'cors',
-  'Sec-Fetch-Dest': 'empty',
-  'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-};
 
 function parseDur(s) { const p = (s || '').split(':'); return p.length === 2 ? parseInt(p[0]) * 60 + parseInt(p[1]) : (p.length === 3 ? parseInt(p[0]) * 3600 + parseInt(p[1]) * 60 + parseInt(p[2]) : 0); }
 
-function biFormat(x) {
-  let imgUrl = x.pic || '';
-  if (imgUrl.startsWith('//')) imgUrl = 'https:' + imgUrl;
-  return {
-    id: 'bitrack_v_' + x.bvid, title: (x.title || '').replace(/<em class="keyword">|<\/em>/g, ''),
-    artist: x.author || '', artist_id: 'biartist_v_' + (x.mid || ''),
-    source: 'bilibili', source_url: 'https://www.bilibili.com/' + x.bvid,
-    img_url: imgUrl, duration: parseDur(x.duration),
-  };
-}
-
-// ── Search: Mobile API → Wbi → Web API ──
+// ── Search: via Vercel proxy ──
 async function biSearch(kw, pg) {
-  // Layer 1: Mobile API
-  const appResult = await biAppGet('/x/v2/search', { keyword: kw, pn: pg || 1, ps: 20, search_type: 'video' });
-  if (!appResult._proxy_error && appResult.code === 0 && appResult.data?.result) {
-    const items = Array.isArray(appResult.data.result) ? appResult.data.result : (appResult.data.result.items || []);
+  const d = await biProxy('search', { keyword: kw, page: pg || 1 });
+  if (d._proxy_error || d.error) return { result: [], total: 0 };
+  // Proxy returns results with avid/bvid fields
+  if (d.result && d.result.length > 0) {
     return {
-      result: items.filter(x => x.bvid).map(x => ({
-        id: 'bitrack_v_' + x.bvid, title: (x.title || '').replace(/<[^>]+>/g, ''),
-        artist: x.author || '', artist_id: 'biartist_v_' + (x.mid || ''),
-        source: 'bilibili', source_url: 'https://www.bilibili.com/' + x.bvid,
-        img_url: x.pic?.startsWith('//') ? 'https:' + x.pic : (x.pic || ''),
-        duration: parseDur(x.duration),
+      result: d.result.map(x => ({
+        id: x.id, title: x.title, artist: x.artist || '',
+        artist_id: 'biartist_v_', source: 'bilibili',
+        source_url: x.source_url || '', img_url: x.img_url || '',
+        duration: x.duration || 0, avid: x.avid || '', bvid: x.bvid || '',
       })),
-      total: appResult.data.page?.numResults || appResult.data.numResults || items.length,
+      total: d.total || d.result.length,
     };
   }
-  // Layer 2: Wbi-signed web search
-  const wbiResult = await biWbiGet('https://api.bilibili.com/x/web-interface/wbi/search/type', { keyword: kw, page: pg || 1, page_size: 20, search_type: 'video' });
-  if (!wbiResult._proxy_error && wbiResult.code === 0 && wbiResult.data?.result) {
-    return { result: wbiResult.data.result.map(x => biFormat(x)), total: wbiResult.data.numResults || 0 };
-  }
-  // Layer 3: Plain web API with cookies
-  const ck = await biGetCookies();
-  const d = await proxyGet('https://api.bilibili.com/x/web-interface/search/type?__refresh__=true&page=' + (pg || 1) + '&page_size=20&platform=pc&highlight=1&keyword=' + encodeURIComponent(kw) + '&search_type=video', 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-  if (d._proxy_error || d.code === -412) return { result: [], total: 0 };
-  const s = d.data?.result || [];
-  return { result: s.map(x => biFormat(x)), total: d.data?.numResults || 0 };
+  return { result: [], total: 0 };
 }
 
-// ── Chart: Mobile API search → Web API → Hardcoded ──
-const BI_HARDCODED_CHARTS = [
-  { id: 'bipop_BV1jE42107rM', title: '2024年度热门音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1jE42107rM' },
-  { id: 'bipop_BV1GJ411x7h7', title: '华语经典歌曲100首', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1GJ411x7h7' },
-  { id: 'bipop_BV1Nx411w7XV', title: '动漫OP合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Nx411w7XV' },
-  { id: 'bipop_BV1XW411M7Gz', title: 'V家名曲精选', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1XW411M7Gz' },
-  { id: 'bipop_BV17W41147Va', title: '古风音乐大合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV17W41147Va' },
-  { id: 'bipop_BV1Es411B7Dw', title: '翻唱歌曲合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Es411B7Dw' },
-  { id: 'bipop_BV1as411B7tN', title: '轻音乐纯音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1as411B7tN' },
-  { id: 'bipop_BV1vx411B7tW', title: '日文流行歌曲合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1vx411B7tW' },
-  { id: 'bipop_BV1Rx411B7oL', title: '韩流K-Pop精选', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Rx411B7oL' },
-  { id: 'bipop_BV1Xx411B7GJ', title: '欧美流行音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Xx411B7GJ' },
-  { id: 'bipop_BV1Wx411B7Mo', title: '民谣精选合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Wx411B7Mo' },
-  { id: 'bipop_BV1bx411B7Uo', title: '电子音乐精选', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1bx411B7Uo' },
-  { id: 'bipop_BV1nx411c7VJ', title: '摇滚音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1nx411c7VJ' },
-  { id: 'bipop_BV1ex411j7oV', title: 'R&B/Soul精选', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1ex411j7oV' },
-  { id: 'bipop_BV1kx411B7VT', title: '嘻哈说唱合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1kx411B7VT' },
-  { id: 'bipop_BV1fx411B7rW', title: 'ACG神曲合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1fx411B7rW' },
-  { id: 'bipop_BV1dx411B7fZ', title: '抖音热门歌曲合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1dx411B7fZ' },
-  { id: 'bipop_BV1Zx411B7XL', title: '粤语经典合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Zx411B7XL' },
-  { id: 'bipop_BV1fx411B7XL', title: '影视OST合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1fx411B7XL' },
-  { id: 'bipop_BV1Vx411B7DL', title: '钢琴曲精选合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Vx411B7DL' },
-];
-
+// ── Chart: via Vercel proxy ──
 async function biChart() {
-  // Layer 1: Audio music service (www.bilibili.com)
-  const ck = await biGetCookies();
-  const audioChart = await proxyGet('https://www.bilibili.com/audio/music-service-c/web/menu/hit?ps=20&pn=1', 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-  if (!audioChart._proxy_error && audioChart.code === 0 && audioChart.data?.data?.length) {
-    return audioChart.data.data.map(item => ({
-      id: 'biplaylist_' + item.menuId, title: item.title,
-      cover_img_url: item.cover || '', source: 'bilibili',
-      source_url: 'https://www.bilibili.com/audio/am' + item.menuId,
-    }));
-  }
-  // Layer 2: Mobile API search for popular playlists
-  const keywords = ['热门音乐', '经典歌曲合集', '动漫OP合集', '翻唱精选', '纯音乐合集', '古风音乐'];
-  const results = [];
-  for (const kw of keywords) {
-    if (results.length >= 20) break;
-    const d = await biAppGet('/x/v2/search', { keyword: kw, pn: 1, ps: 5, search_type: 'video' });
-    if (d._proxy_error || d.code !== 0) continue;
-    const items = Array.isArray(d.data?.result) ? d.data.result : (d.data?.result?.items || []);
-    for (const x of items) {
-      if (!x.bvid) continue;
-      results.push({
-        id: 'bipop_' + x.bvid, title: (x.title || '').replace(/<[^>]+>/g, ''),
-        cover_img_url: x.pic?.startsWith('//') ? 'https:' + x.pic : (x.pic || ''),
-        source: 'bilibili', source_url: 'https://www.bilibili.com/' + x.bvid,
-      });
-    }
-  }
-  if (results.length > 0) return results;
-  // Layer 3: Web API search fallback
-  for (const kw of keywords) {
-    if (results.length >= 20) break;
-    const d = await proxyGet('https://api.bilibili.com/x/web-interface/search/type?keyword=' + encodeURIComponent(kw) + '&search_type=video&page=1&page_size=5', 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-    if (d._proxy_error || d.code === -412) continue;
-    const items = d.data?.result || [];
-    for (const x of items) {
-      results.push({
-        id: 'bipop_' + x.bvid, title: (x.title || '').replace(/<em class="keyword">|<\/em>/g, ''),
-        cover_img_url: x.pic?.startsWith('//') ? 'https:' + x.pic : (x.pic || ''),
-        source: 'bilibili', source_url: 'https://www.bilibili.com/' + x.bvid,
-      });
-    }
-  }
-  if (results.length > 0) return results;
-  // Layer 4: Hardcoded playlists
-  return BI_HARDCODED_CHARTS;
+  const d = await biProxy('chart');
+  if (Array.isArray(d) && d.length > 0) return d;
+  // Fallback: hardcoded
+  return [
+    { id: 'bipop_BV1jE42107rM', title: '2024年度热门音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1jE42107rM' },
+    { id: 'bipop_BV1GJ411x7h7', title: '华语经典歌曲100首', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1GJ411x7h7' },
+    { id: 'bipop_BV1Nx411w7XV', title: '动漫OP合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Nx411w7XV' },
+    { id: 'bipop_BV1XW411M7Gz', title: 'V家名曲精选', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1XW411M7Gz' },
+    { id: 'bipop_BV17W41147Va', title: '古风音乐大合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV17W41147Va' },
+    { id: 'bipop_BV1Es411B7Dw', title: '翻唱歌曲合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Es411B7Dw' },
+    { id: 'bipop_BV1as411B7tN', title: '轻音乐纯音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1as411B7tN' },
+    { id: 'bipop_BV1vx411B7tW', title: '日文流行歌曲合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1vx411B7tW' },
+    { id: 'bipop_BV1Rx411B7oL', title: '韩流K-Pop精选', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Rx411B7oL' },
+    { id: 'bipop_BV1Xx411B7GJ', title: '欧美流行音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Xx411B7GJ' },
+    { id: 'bipop_BV1Wx411B7Mo', title: '民谣精选合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Wx411B7Mo' },
+    { id: 'bipop_BV1bx411B7Uo', title: '电子音乐精选', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1bx411B7Uo' },
+    { id: 'bipop_BV1nx411c7VJ', title: '摇滚音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1nx411c7VJ' },
+    { id: 'bipop_BV1ex411j7oV', title: 'R&B/Soul精选', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1ex411j7oV' },
+    { id: 'bipop_BV1kx411B7VT', title: '嘻哈说唱合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1kx411B7VT' },
+    { id: 'bipop_BV1fx411B7rW', title: 'ACG神曲合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1fx411B7rW' },
+    { id: 'bipop_BV1dx411B7fZ', title: '抖音热门歌曲合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1dx411B7fZ' },
+    { id: 'bipop_BV1Zx411B7XL', title: '粤语经典合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Zx411B7XL' },
+    { id: 'bipop_BV1fx411B7XL', title: '影视OST合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1fx411B7XL' },
+    { id: 'bipop_BV1Vx411B7DL', title: '钢琴曲精选合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1Vx411B7DL' },
+  ];
 }
 
-// ── Bootstrap: Mobile API → Web API ──
+// ── Bootstrap: via Vercel proxy ──
 async function biBootstrap(tid) {
-  const ck = await biGetCookies();
   // Video tracks: bitrack_v_BVxxx or bitrack_v_BVxxx-cid
   if (tid.startsWith('bitrack_v_')) {
     const ip = tid.replace('bitrack_v_', '');
     const [bvid, cidPart] = ip.split('-');
     let cid = cidPart;
 
-    // Try mobile API for video info first
+    // Get video info (cid) via proxy if needed
     if (!cid) {
-      const appInfo = await biAppGet('/x/v2/view', { bvid });
-      if (!appInfo._proxy_error && appInfo.code === 0 && appInfo.data?.pages) {
-        cid = appInfo.data.pages[0]?.cid;
+      const info = await biProxy('view', { bvid });
+      if (info.pages && info.pages.length > 0) {
+        cid = info.pages[0].cid;
       }
-    }
-    // Fallback: web API for video info
-    if (!cid) {
-      const info = await proxyGet('https://api.bilibili.com/x/web-interface/view?bvid=' + bvid, 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-      if (info._proxy_error) return { url: null };
-      cid = info.data?.pages?.[0]?.cid;
     }
     if (!cid) return { url: null };
 
-    // Try mobile API playurl
-    const appPlay = await biAppGet('/x/v2/playurl', { avid: '', bvid, cid: String(cid), qn: '64', fnval: '16', fourk: '1' });
-    if (!appPlay._proxy_error && appPlay.code === 0) {
-      // Dash audio
-      if (appPlay.data?.dash?.audio?.[0]?.baseUrl) {
-        return { url: '/api/bili-audio?url=' + encodeURIComponent(appPlay.data.dash.audio[0].baseUrl), platform: 'bilibili' };
-      }
-      // Durl fallback
-      if (appPlay.data?.durl?.[0]?.url) {
-        return { url: '/api/bili-audio?url=' + encodeURIComponent(appPlay.data.durl[0].url), platform: 'bilibili' };
-      }
-    }
-
-    // Fallback: web API playurl with cookies
-    const d = await proxyGet('https://api.bilibili.com/x/player/playurl?fnval=16&bvid=' + bvid + '&cid=' + cid, 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-    if (!d._proxy_error && d.data?.dash?.audio?.[0]?.baseUrl) {
-      return { url: '/api/bili-audio?url=' + encodeURIComponent(d.data.dash.audio[0].baseUrl), platform: 'bilibili' };
-    }
-    const d2 = await proxyGet('https://api.bilibili.com/x/player/playurl?fnval=0&bvid=' + bvid + '&cid=' + cid, 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-    if (!d2._proxy_error && d2.data?.durl?.[0]?.url) {
-      return { url: '/api/bili-audio?url=' + encodeURIComponent(d2.data.durl[0].url), platform: 'bilibili' };
+    // Get playurl via proxy
+    const play = await biProxy('playurl', { bvid, cid });
+    if (play.url) {
+      // DASH/durl audio URLs from B站 need proxying (cross-origin)
+      return { url: '/api/bili-audio?url=' + encodeURIComponent(play.url), platform: 'bilibili' };
     }
     return { url: null };
   }
   // Audio tracks: bitrack_12345 (B站音乐区)
   const songId = tid.replace('bitrack_', '');
-  // Try web API for audio URL (audio CDN might not have -412)
-  const d = await proxyGet('https://www.bilibili.com/audio/music-service-c/web/url?sid=' + songId, 'https://www.bilibili.com/', { 'Cookie': ck });
-  if (!d._proxy_error && d.data?.cdns?.[0]) {
-    let u = d.data.cdns[0];
-    if (u.startsWith('//')) u = 'https:' + u;
-    return { url: u, platform: 'bilibili' };
-  }
-  // Also try api.bilibili.com
-  const d2 = await proxyGet('https://api.bilibili.com/audio/music-service-c/web/url?sid=' + songId, 'https://www.bilibili.com/', { 'Cookie': ck });
-  if (!d2._proxy_error && d2.data?.cdns?.[0]) {
-    let u = d2.data.cdns[0];
-    if (u.startsWith('//')) u = 'https:' + u;
-    return { url: u, platform: 'bilibili' };
-  }
+  const d = await biProxy('audio_url', { sid: songId });
+  if (d.url) return { url: d.url, platform: 'bilibili' };
   return { url: null };
 }
 
-// ── Playlist Tracks: Mobile API → Web API ──
+// ── Playlist Tracks: via Vercel proxy ──
 async function biPlaylistTracks(listId) {
-  const ck = await biGetCookies();
-  // Audio playlists: biplaylist_12345
-  if (listId.startsWith('biplaylist_')) {
-    const sid = listId.replace('biplaylist_', '');
-    // Try www.bilibili.com audio service
-    const d = await proxyGet('https://www.bilibili.com/audio/music-service-c/web/song/of-menu?pn=1&ps=100&sid=' + sid, 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-    if (!d._proxy_error && d.data?.data?.length) {
-      const tracks = d.data.data.map(s => ({
-        id: 'bitrack_' + s.id, title: s.title || '',
-        artist: s.upName || s.author || '', source: 'bilibili',
-        source_url: 'https://www.bilibili.com/audio/au' + s.id,
-        img_url: s.cover || '', duration: parseInt(s.duration || 0),
-      }));
-      return { tracks, total: d.data?.totalSize || tracks.length };
-    }
-    // Fallback: api.bilibili.com
-    const d2 = await proxyGet('https://api.bilibili.com/audio/music-service-c/web/song/of-menu?pn=1&ps=100&sid=' + sid, 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-    if (!d2._proxy_error && d2.data?.data?.length) {
-      const tracks = d2.data.data.map(s => ({
-        id: 'bitrack_' + s.id, title: s.title || '',
-        artist: s.upName || s.author || '', source: 'bilibili',
-        source_url: 'https://www.bilibili.com/audio/au' + s.id,
-        img_url: s.cover || '', duration: parseInt(s.duration || 0),
-      }));
-      return { tracks, total: d2.data?.totalSize || tracks.length };
-    }
-  }
-  // Popular video collections: bipop_BVxxx
-  if (listId.startsWith('bipop_')) {
-    const bvid = listId.replace('bipop_', '');
-    // Try mobile API for video info
-    const appInfo = await biAppGet('/x/v2/view', { bvid });
-    if (!appInfo._proxy_error && appInfo.code === 0 && appInfo.data?.pages) {
-      const pages = appInfo.data.pages;
-      const tracks = pages.map(p => ({
-        id: 'bitrack_v_' + bvid + '-' + p.cid, title: p.part || appInfo.data.title || '',
-        artist: appInfo.data.owner?.name || '', source: 'bilibili',
-        source_url: 'https://www.bilibili.com/' + bvid + '?p=' + p.page,
-        img_url: (appInfo.data.pic || '').startsWith('//') ? 'https:' + appInfo.data.pic : (appInfo.data.pic || ''),
-        duration: parseInt(p.duration || 0),
-      }));
-      return { tracks, total: tracks.length };
-    }
-    // Fallback: web API
-    const info = await proxyGet('https://api.bilibili.com/x/web-interface/view?bvid=' + bvid, 'https://www.bilibili.com/', { 'Cookie': ck, ...BI_WEB_HEADERS });
-    if (info._proxy_error || !info.data?.pages) return { tracks: [], total: 0 };
-    const pages = info.data.pages;
-    const tracks = pages.map(p => ({
-      id: 'bitrack_v_' + bvid + '-' + p.cid, title: p.part || info.data.title || '',
-      artist: info.data.owner?.name || '', source: 'bilibili',
-      source_url: 'https://www.bilibili.com/' + bvid + '?p=' + p.page,
-      img_url: (info.data.pic || '').startsWith('//') ? 'https:' + info.data.pic : (info.data.pic || ''),
-      duration: parseInt(p.duration || 0),
-    }));
-    return { tracks, total: tracks.length };
-  }
+  const d = await biProxy('playlist_tracks', { listId });
+  if (d.tracks) return { tracks: d.tracks, total: d.total || d.tracks.length };
   return { tracks: [], total: 0 };
 }
 
@@ -1245,7 +990,7 @@ export default {
       }
     }
 
-    if (url.pathname.startsWith('/api/')) {
+    if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
       if (!env._shareInitDone) { await dbInit(env?.dd_music_db); if (env) env._shareInitDone = true; }
       const result = await apiRouter(url, env);
       return new Response(JSON.stringify(result), {
