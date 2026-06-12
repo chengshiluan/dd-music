@@ -747,7 +747,7 @@ export default {
     }
 
     if (url.pathname.startsWith('/api/')) {
-      await dbInit(env?.dd_music_db);
+      if (!env._shareInitDone) { await dbInit(env?.dd_music_db); if (env) env._shareInitDone = true; }
       const result = await apiRouter(url, env);
       return new Response(JSON.stringify(result), {
         headers: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=60' }

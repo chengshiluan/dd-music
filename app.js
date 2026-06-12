@@ -155,9 +155,10 @@ function buildHeatmap(daysSet){
 
 function renderFavorites(c){
   if(!favorites.length){c.innerHTML='<div class="empty-hint">还没有收藏歌曲</div>';return}
-  c.innerHTML='<div class="category-header"><div class="category-name">我的收藏</div></div>';
   var list=favorites.slice().sort(function(a,b){return(b.ts||0)-(a.ts||0)});
-  songs=list;renderSongList(c,list,true);
+  songs=list;
+  c.innerHTML='<div class="category-header"><div class="category-name">我的收藏</div></div><div class="song-list" id="favSongList"></div>';
+  renderSongList($('#favSongList'),list,true);
 }
 
 function renderRecent(c){
@@ -363,7 +364,7 @@ async function toggleFavorite(song){var id=song.id||'';if(!id)return;var idx=fav
 
 async function downloadSong(song){var tid=song.id||'';if(!tid)return;showToast('获取下载链接...');try{var p=song.source||currentPlatform;if(p==='mine')p='netease';var d=await apiCall({action:'bootstrap',platform:p,trackId:tid});if(d.url){showToast('下载中...');try{var r=await fetch(d.url);if(r.ok){var b=await r.blob();var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download=(song.title||song.name||'music')+'.mp3';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(u)},1000);showToast('下载完成')}else throw new Error('status')}catch(corsErr){var a=document.createElement('a');a.href=d.url;a.download=(song.title||song.name||'music')+'.mp3';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('已打开下载链接')}}else showToast('暂无下载源')}catch(e){showToast('下载失败')}}
 
-async function shareSong(song){var id=song.id||'',p=song.source||currentPlatform;if(!id){showToast('分享失败');return}try{var d=await apiCall({action:'share_create',platform:p,song_id:id,title:song.title||song.name||'',artist:song.artist||'',cover:https(song.img_url||song.cover||''),share_user:userState.github.loggedIn?userState.github.login:''});if(d&&d.code){var u='https://ddmusic.eu.cc/#s='+d.code;navigator.clipboard.writeText(u).then(function(){showToast('链接已复制，打开即可播放')}).catch(function(){showToast('复制失败')})}else{showToast('分享失败')}}catch(e){showToast('分享失败')}}
+async function shareSong(song){var id=song.id||'',p=song.source||currentPlatform;if(!id){showToast('分享失败：歌曲ID缺失');return}try{var params={action:'share_create',platform:p,song_id:id,title:song.title||song.name||'',artist:song.artist||'',cover:https(song.img_url||song.cover||''),share_user:userState.github.loggedIn?userState.github.login:''};var d=await apiCall(params);console.log('[DD] share_create response:',JSON.stringify(d));if(d&&d.code){var u='https://ddmusic.eu.cc/#s='+d.code;navigator.clipboard.writeText(u).then(function(){showToast('链接已复制，打开即可播放')}).catch(function(){showToast('复制失败')})}else{showToast('分享失败：'+(d&&d.error?d.error:'未知错误'))}}catch(e){console.error('[DD] share error:',e);showToast('分享失败：'+e.message)}}
 
 // -- Audio wave loading indicator --
 var _audioWaveEl=null;
@@ -503,26 +504,37 @@ document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')re
 
 checkOAuthCallback();
 // Auto-play from shared link: #s=CODE (DB lookup) or #play=platform_id (legacy)
+function showShareLoading(title,artist,cover){
+  var el=document.createElement('div');el.className='share-loading';
+  el.innerHTML='<div class="share-loading-cover">'+(cover?'<img src="'+cover+'" alt="">':'')+'</div>'+
+    '<div class="share-loading-title">'+escHtml(title||'加载中...')+'</div>'+
+    '<div class="share-loading-artist">'+escHtml(artist||'')+'</div>'+
+    '<div class="share-loading-spinner"></div>';
+  document.body.appendChild(el);return el;
+}
 (function(){
   var h=location.hash;
   if(h.startsWith('#s=')){
     var code=h.slice(3);
     history.replaceState(null,'','/');
+    var loadingEl=showShareLoading('','',null);
     setTimeout(function(){
       apiCall({action:'share_get',code:code}).then(function(d){
         if(d&&d.ok){
+          if(d.cover)loadingEl.querySelector('.share-loading-cover').innerHTML='<img src="'+d.cover+'" alt="">';
+          loadingEl.querySelector('.share-loading-title').textContent=d.title||'未知歌曲';
+          loadingEl.querySelector('.share-loading-artist').textContent=d.artist||'';
           var s={id:d.song_id,title:d.title||'',artist:d.artist||'',source:d.platform};
           if(d.cover) s.img_url=d.cover;
-          showAudioWave();
-          resolveUrl(s).then(function(u){if(u)loadAndPlay(s,u);else{hideAudioWave();showToast('暂无播放源')}}).catch(function(){hideAudioWave();showToast('播放失败')})
-        }else{showToast('分享链接无效')}
-      }).catch(function(){showToast('分享链接无效')});
-    },800);
+          resolveUrl(s).then(function(u){loadingEl.remove();if(u)loadAndPlay(s,u);else showToast('暂无播放源')}).catch(function(){loadingEl.remove();showToast('播放失败')})
+        }else{loadingEl.remove();showToast('分享链接无效')}
+      }).catch(function(){loadingEl.remove();showToast('分享链接无效')});
+    },300);
   }else if(h.startsWith('#play=')){
     var parts=h.slice(6).split('_');
     var plat=parts[0]||'netease',tid=decodeURIComponent(parts.slice(1).join('_'));
     if(tid){
-      history.replaceState(null,'','/');
+      history.replaceState(null,'/');
       setTimeout(function(){
         var fakeSong={id:tid,title:'',artist:'',source:plat};
         showAudioWave();
