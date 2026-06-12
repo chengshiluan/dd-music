@@ -233,10 +233,13 @@ function qqFormat(x) {
 
 async function qqBootstrap(tid) {
   const mid = tid.replace('qqtrack_', '');
-  // Try M500 (128kbps mp3) first, then C400 (m4a) fallback
+  // Try multiple approaches for QQ Music playback
+  // Approach 1: vkey.GetVkeyServer with different file formats
   const fileTypes = [
-    { prefix: 'M500', ext: '.mp3' },
     { prefix: 'C400', ext: '.m4a' },
+    { prefix: 'M500', ext: '.mp3' },
+    { prefix: 'O400', ext: '.ogg' },
+    { prefix: 'Q400', ext: '.flac' },
   ];
   for (const ft of fileTypes) {
     const filename = ft.prefix + mid + mid + ft.ext;
@@ -248,6 +251,16 @@ async function qqBootstrap(tid) {
     if (d._proxy_error) continue;
     const purl = d.req_1?.data?.midurlinfo?.[0]?.purl;
     if (purl) return { url: (d.req_1?.data?.sip?.[0] || '') + purl, platform: 'qq' };
+  }
+  // Approach 2: Try music.fcg with different module
+  const d2 = await proxyPostJson('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+    req_0: { module: 'vkey.GetVkeyServer', method: 'CgiGetVkey',
+      param: { filename: ['C400' + mid + mid + '.m4a'], guid: '10000', songmid: [mid], songtype: [0], uin: '0', loginflag: 1, platform: '20' } },
+    comm: { uin: '0', format: 'json', ct: 24, cv: 0, authst: '', tmeLoginType: 1 }
+  });
+  if (!d2._proxy_error) {
+    const purl = d2.req_0?.data?.midurlinfo?.[0]?.purl;
+    if (purl) return { url: (d2.req_0?.data?.sip?.[0] || '') + purl, platform: 'qq' };
   }
   return { url: null };
 }
@@ -295,9 +308,16 @@ async function kgSearch(kw, pg) {
 
 async function kgBootstrap(tid) {
   const h = tid.replace('kgtrack_', '');
+  // Approach 1: m.kugou.com getSongInfo (mobile API)
   const d = await proxyGet('https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=' + h, 'https://m.kugou.com/', { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X)' });
-  if (d._proxy_error) return { url: null };
-  return d.url ? { url: d.url, bitrate: (d.bitRate || 128) + 'kbps', platform: 'kugou' } : { url: null };
+  if (!d._proxy_error && d.url) return { url: d.url, bitrate: (d.bitRate || 128) + 'kbps', platform: 'kugou' };
+  // Approach 2: trackercdn API
+  const d2 = await proxyGet('http://trackercdnbj.kugou.com/i/v2/?cmd=23&pid=1&behavior=play&hash=' + h, 'https://m.kugou.com/');
+  if (!d2._proxy_error && d2.url) return { url: d2.url, platform: 'kugou' };
+  // Approach 3: try wwwapi with album_id if available
+  const d3 = await proxyGet('https://wwwapi.kugou.com/yy/index.php?r=play/getdata&hash=' + h + '&album_id=0&mid=1', 'https://www.kugou.com/');
+  if (!d3._proxy_error && d3.data?.play_url) return { url: d3.data.play_url, platform: 'kugou' };
+  return { url: null };
 }
 
 async function kgChart() {
@@ -364,8 +384,29 @@ function formatKuwoResults(d) {
 
 async function kwBootstrap(tid) {
   const songId = tid.replace('kwtrack_', '');
-  const url = `https://www.kuwo.cn/api/v1/www/music/playUrl?mid=${songId}&type=music&httpsStatus=1&reqId=&plat=web_www&from=`;
-  const d = await kuwoRequest(url);
+  // Need Secret header for playUrl - get token from kuwo.cn
+  const playUrl = `https://www.kuwo.cn/api/v1/www/music/playUrl?mid=${songId}&type=music&httpsStatus=1&reqId=&plat=web_www&from=`;
+  // Try with Secret header first
+  try {
+    const tokenResp = await fetch('https://www.kuwo.cn/', { headers: { 'User-Agent': UA }, redirect: 'follow' });
+    const setCookies = [];
+    try { const vals = tokenResp.headers.getAll('set-cookie'); if (Array.isArray(vals)) setCookies.push(...vals); } catch {}
+    const sc = tokenResp.headers.get('set-cookie');
+    if (sc) setCookies.push(sc);
+    let token = '';
+    for (const c of setCookies) {
+      const m = c.match(/Hm_Iuvt_cdb524f42f23cer9b268564v7y735ewrq2324=([^;]+)/);
+      if (m) { token = m[1]; break; }
+    }
+    if (token) {
+      const secret = kwComputeSecret(token, 'Hm_Iuvt_cdb524f42f23cer9b268564v7y735ewrq2324');
+      const csrf = token.slice(0, 8);
+      const d = await proxyGet(playUrl, 'https://www.kuwo.cn/', { 'Secret': secret, 'csrf': csrf, 'Cookie': 'Hm_Iuvt_cdb524f42f23cer9b268564v7y735ewrq2324=' + token });
+      if (d.data && d.data.url) return { url: d.data.url, platform: 'kuwo' };
+    }
+  } catch {}
+  // Fallback: try without Secret
+  const d = await kuwoRequest(playUrl);
   if (d._proxy_error) return { url: null };
   if (d.data && d.data.url) return { url: d.data.url, platform: 'kuwo' };
   return { url: null };
@@ -450,18 +491,32 @@ async function kwPlaylistTracks(listId) {
   const url = 'https://nplserver.kuwo.cn/pl.svc?op=getlistinfo&pn=0&rn=100&encode=utf-8&keyset=pl2012&pcmp4=1&pid=' + pid + '&vipver=MUSIC_9.0.2.0_W1&newver=1';
   const d = await proxyGet(url, 'https://www.kuwo.cn/');
   if (d._proxy_error || !d.musiclist) return { tracks: [], total: 0 };
-  const tracks = d.musiclist.map(s => ({
-    id: 'kwtrack_' + (s.DC_TARGETID || s.tid || ''), title: htmlDecode(s.FSONGNAME || s.NAME || ''),
-    artist: htmlDecode(s.FARTIST || s.ARTIST || ''), album: htmlDecode(s.FALBUM || s.ALBUM || ''),
-    source: 'kuwo', source_url: 'https://www.kuwo.cn/play_detail/' + (s.DC_TARGETID || s.tid || ''),
-    img_url: s.pic || s.img || '', duration: parseInt(s.DURATION || 0),
-  }));
+  const tracks = d.musiclist.map(s => {
+    // API returns both old fields (DC_TARGETID/NAME) and new fields (id/name)
+    const songId = s.DC_TARGETID || s.id || s.tid || '';
+    const title = s.FSONGNAME || s.NAME || s.name || '';
+    const artist = s.FARTIST || s.ARTIST || s.artist || '';
+    const album = s.FALBUM || s.ALBUM || s.album || '';
+    const img = s.pic || s.img || s.albumpic || s.musicPic || '';
+    return {
+      id: 'kwtrack_' + songId, title: htmlDecode(title),
+      artist: htmlDecode(artist), album: htmlDecode(album),
+      source: 'kuwo', source_url: 'https://www.kuwo.cn/play_detail/' + songId,
+      img_url: img, duration: parseInt(s.DURATION || s.duration || 0),
+    };
+  }).filter(t => t.id !== 'kwtrack_' && t.title);
   return { tracks, total: d.total || tracks.length };
 }
 
 // ─── Bilibili ───
 // B站 blocks CF Workers IPs (-412). Route all B站 API calls through Vercel proxy.
 const BILI_PROXY = 'https://bili-proxy-ten.vercel.app/api';
+
+// Proxy B站 image URLs through /api/img to avoid CORS issues on hdslb.com
+function biProxyImg(url) {
+  if (!url || !url.includes('hdslb.com')) return url;
+  return '/api/img?url=' + encodeURIComponent(url);
+}
 
 // Helper: call B站 via Vercel proxy (AWS IPs, not blocked by B站)
 async function biProxy(action, params = {}) {
@@ -488,7 +543,7 @@ async function biSearch(kw, pg) {
       result: d.result.map(x => ({
         id: x.id, title: x.title, artist: x.artist || '',
         artist_id: 'biartist_v_', source: 'bilibili',
-        source_url: x.source_url || '', img_url: x.img_url || '',
+        source_url: x.source_url || '', img_url: biProxyImg(x.img_url) || '',
         duration: x.duration || 0, avid: x.avid || '', bvid: x.bvid || '',
       })),
       total: d.total || d.result.length,
@@ -500,7 +555,13 @@ async function biSearch(kw, pg) {
 // ── Chart: via Vercel proxy ──
 async function biChart() {
   const d = await biProxy('chart');
-  if (Array.isArray(d) && d.length > 0) return d;
+  if (Array.isArray(d) && d.length > 0) {
+    // Proxy hdslb.com image URLs through /api/img
+    return d.map(c => ({
+      ...c,
+      cover_img_url: biProxyImg(c.cover_img_url || ''),
+    }));
+  }
   // Fallback: hardcoded
   return [
     { id: 'bipop_BV1jE42107rM', title: '2024年度热门音乐合集', cover_img_url: '', source: 'bilibili', source_url: 'https://www.bilibili.com/BV1jE42107rM' },
@@ -927,6 +988,19 @@ async function apiRouter(url, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // Image proxy (B站 hdslb.com images need CORS proxy)
+    if (url.pathname === '/api/img') {
+      const imgUrl = url.searchParams.get('url');
+      if (!imgUrl) return new Response('Missing url', { status: 400 });
+      try {
+        const r = await fetch(imgUrl, { headers: { 'Referer': 'https://www.bilibili.com/', 'User-Agent': UA } });
+        const ct = r.headers.get('Content-Type') || 'image/jpeg';
+        return new Response(r.body, { status: r.status, headers: { 'Content-Type': ct, 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=86400' } });
+      } catch (e) {
+        return new Response('Proxy error', { status: 502 });
+      }
+    }
 
     // Bilibili audio proxy (video audio needs Referer header)
     if (url.pathname === '/api/bili-audio') {
