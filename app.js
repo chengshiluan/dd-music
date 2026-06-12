@@ -46,7 +46,7 @@ function fmtTime(s){var m=Math.floor(s/60);return m+':'+String(Math.floor(s%60))
 function isFav(id){return favorites.some(function(f){return f.id===id})}
 function isCurrentPlaying(id){return isPlaying&&currentSong&&(currentSong.id||'')===(id||'')}
 function miniWaveHtml(){return'<div class="song-playing-wave"><span></span><span></span><span></span><span></span><span></span></div>'}
-function qiWaveHtml(){return'<div class="qi-playing-wave"><span></span><span></span></div>'}
+function qiWaveHtml(){return'<div class="qi-playing-wave"><span></span><span></span><span></span><span></span><span></span></div>'}
 function getFrequentSongs(){var list=[];for(var id in playCounts){if(playCounts[id]>=10){var f=favorites.find(function(x){return x.id===id})||songs.find(function(x){return x.id===id});if(f)list.push({id:f.id,title:f.title||f.name||'',artist:f.artist||'',img_url:https(f.img_url||f.cover||''),source:f.source||'',count:playCounts[id]})}}list.sort(function(a,b){return b.count-a.count});return list}
 
 // -- View switching --
