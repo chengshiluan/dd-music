@@ -169,11 +169,11 @@ a{color:inherit;text-decoration:none}
 .np-bg.blur-enabled{filter:blur(80px) brightness(.35)}
 .np-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .5s}
 .np-backdrop.translucent{background:rgba(0,0,0,.45)}
-/* macOS-style back chevron */
-.np-back{position:absolute;top:var(--safe-top);left:20px;z-index:2;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:rgba(255,255,255,.75);border-radius:50%;transition:opacity .4s,background .2s,color .2s}
-.np-back:hover{background:rgba(255,255,255,.12);color:#fff}
-.np-fullscreen{position:absolute;top:var(--safe-top);right:20px;z-index:2;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:rgba(255,255,255,.75);border-radius:50%;transition:opacity .4s,background .2s,color .2s}
-.np-fullscreen:hover{background:rgba(255,255,255,.12);color:#fff}
+/* Linear minimal back arrow */
+.np-back{position:absolute;top:calc(var(--safe-top) + 20px);left:20px;z-index:2;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:rgba(255,255,255,.75);border-radius:4px;transition:opacity .4s,background .2s,color .2s}
+.np-back:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,1)}
+.np-fullscreen{position:absolute;top:calc(var(--safe-top) + 20px);right:20px;z-index:2;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:rgba(255,255,255,.75);border-radius:4px;transition:opacity .4s,background .2s,color .2s}
+.np-fullscreen:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,1)}
 /* Body: left(vinyl+controls) | right(song info+lyrics) */
 .np-body{position:relative;z-index:1;height:100%;display:flex;align-items:center;gap:400px;padding:60px 50px calc(var(--player-h)+24px);max-width:1200px;margin:0 auto}
 /* LEFT column: vinyl + controls */

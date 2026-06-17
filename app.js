@@ -72,8 +72,8 @@ $('#playerCoverWrap').addEventListener('click',openNowPlaying);$('#npClose').add
 $('#npFullscreen').addEventListener('click',function(){if(!document.fullscreenElement){document.documentElement.requestFullscreen().catch(function(){})}else{document.exitFullscreen().catch(function(){})}});
 // NP auto-hide controls after 3s idle
 var npIdleTimer=null,npControlsVisible=true;
-function npShowControls(){npControlsVisible=true;var c=$('#npControls');if(c)c.classList.remove('np-hidden');var b=$('#npBack'),fs=$('#npFullscreen');if(b)b.style.opacity='1';if(fs)fs.style.opacity='1'}
-function npHideControls(){if(!npControlsVisible)return;npControlsVisible=false;var c=$('#npControls');if(c)c.classList.add('np-hidden');var b=$('#npBack'),fs=$('#npFullscreen');if(b)b.style.opacity='0';if(fs)fs.style.opacity='0'}
+function npShowControls(){npControlsVisible=true;var c=$('#npControls');if(c)c.classList.remove('np-hidden');var b=$('#npClose'),fs=$('#npFullscreen');if(b)b.style.opacity='1';if(fs)fs.style.opacity='1'}
+function npHideControls(){if(!npControlsVisible)return;npControlsVisible=false;var c=$('#npControls');if(c)c.classList.add('np-hidden');var b=$('#npClose'),fs=$('#npFullscreen');if(b)b.style.opacity='0';if(fs)fs.style.opacity='0'}
 function startNpIdleTimer(){stopNpIdleTimer();npIdleTimer=setTimeout(function(){npHideControls()},3000)}
 function stopNpIdleTimer(){if(npIdleTimer){clearTimeout(npIdleTimer);npIdleTimer=null}}
 document.addEventListener('mousemove',function(){if(nowPlayingOpen){npShowControls();startNpIdleTimer()}});
@@ -462,7 +462,38 @@ async function playSongFromList(idx){var s=songs[idx];if(!s)return;currentIndex=
 
 async function playAll(list){if(!list.length)return;queue=list.slice();songs=list.slice();currentIndex=0;updateQueueUI();showAudioWave();try{var u=await resolveUrl(queue[0]);if(u)loadAndPlay(queue[0],u);else{hideAudioWave();showToast('暂无播放源')}}catch(e){hideAudioWave();showToast('播放失败')}}
 
-async function resolveUrl(song){var tid=song.id||'';if(!tid)return null;var p=song.source||currentPlatform;if(p==='mine')p='netease';try{var d=await apiCall({action:'bootstrap',platform:p,trackId:tid});return d.url||null}catch(e){return null}}
+async function resolveUrl(song){
+  var tid=song.id||'';if(!tid)return null;
+  var p=song.source||currentPlatform;if(p==='mine')p='netease';
+  // Build bootstrap params per platform
+  var params={action:'bootstrap',platform:p,trackId:tid};
+  if(p==='bilibili'&&song.avid)params.avid=song.avid;
+  if(p==='migu'){var ex={};if(song.content_id)ex.content_id=song.content_id;if(song.quality)ex.quality=song.quality;params.extra=JSON.stringify(ex)}
+  try{var d=await apiCall(params);if(d.url)return d.url}catch(e){}
+  // Fallback: search netease for same song and play netease source (handles VIP/no-source on other platforms)
+  if(p!=='netease'){var fb=await neFallbackUrl(song);if(fb)return fb}
+  return null
+}
+
+// Netease fallback: when original platform has no playable source, find the same song on netease
+async function neFallbackUrl(song){
+  var t=(song.title||song.name||'').replace(/\(.*?\)|（.*?）|\[.*?\]|【.*?】/g,'').trim();
+  var a=(song.artist||'').split(/[\/|,，、;&]/)[0].trim();
+  if(!t)return null;
+  var q=a?(t+' '+a):t;
+  try{
+    var d=await apiCall({action:'search',platform:'netease',keyword:q,page:1});
+    var list=d.result||[];
+    if(!list.length)return null;
+    // Pick best match: exact title match preferred, else first
+    var pick=list[0];
+    for(var i=0;i<list.length;i++){var lt=(list[i].title||'').replace(/\(.*?\)|（.*?）|\[.*?\]|【.*?】/g,'').trim();if(lt===t){pick=list[i];break}}
+    var fbtid=pick.id||'';
+    if(!fbtid)return null;
+    var bd=await apiCall({action:'bootstrap',platform:'netease',trackId:fbtid});
+    return bd.url||null
+  }catch(e){return null}
+}
 
 function loadAndPlay(song,url){hideAudioWave();audio.src=url;audio.play().catch(function(e){console.warn('play blocked:',e)});isPlaying=true;currentSong=song;updatePlayBtn();updateNowPlaying(song);recordListen(song);updatePlayingIndicators()}
 

@@ -588,26 +588,31 @@ async function biChart() {
 }
 
 // ── Bootstrap: via Vercel proxy ──
-async function biBootstrap(tid) {
+async function biBootstrap(tid, avid) {
   // Video tracks: bitrack_v_BVxxx or bitrack_v_BVxxx-cid
   if (tid.startsWith('bitrack_v_')) {
     const ip = tid.replace('bitrack_v_', '');
-    const [bvid, cidPart] = ip.split('-');
+    const [bvidFromId, cidPart] = ip.split('-');
     let cid = cidPart;
+    let viewBvid = bvidFromId;
 
-    // Get video info (cid) via proxy if needed
+    // Get video info (cid) via proxy if needed.
+    // Prefer avid (reliable from mobile search API); bvid from avToBv may be wrong.
+    // The view response returns the CORRECT bvid — use that for playurl.
     if (!cid) {
-      const info = await biProxy('view', { bvid });
+      const viewParams = avid ? { avid } : { bvid: bvidFromId };
+      const info = await biProxy('view', viewParams);
       if (info.pages && info.pages.length > 0) {
         cid = info.pages[0].cid;
+        if (info.bvid) viewBvid = info.bvid;
       }
     }
     if (!cid) return { url: null };
 
-    // Get playurl via proxy
-    const play = await biProxy('playurl', { bvid, cid });
+    // playurl works with bvid+cid (avid-only playurl fails on the proxy)
+    const play = await biProxy('playurl', { bvid: viewBvid, cid });
     if (play.url) {
-      // DASH/durl audio URLs from B站 need proxying (cross-origin)
+      // DASH/durl audio URLs from B站 need proxying (cross-origin + Referer防盗链)
       return { url: '/api/bili-audio?url=' + encodeURIComponent(play.url), platform: 'bilibili' };
     }
     return { url: null };
@@ -681,17 +686,19 @@ async function mgChart() {
 async function mgPlaylistTracks(listId) {
   const pid = listId.replace('mgplaylist_', '').replace('mgtoplist_', '');
   const d = await proxyGet('https://app.c.nf.migu.cn/MIGUM2.0/v1.0/user/queryMusicListSongs.do?musicListId=' + pid + '&pageNo=1&pageSize=100', 'https://music.migu.cn/', { 'channel': '0146951' });
-  if (d._proxy_error || !d.data) return { tracks: [], total: 0 };
-  const songs = Array.isArray(d.data) ? d.data : (d.data?.songList || d.data?.items || []);
+  if (d._proxy_error) return { tracks: [], total: 0 };
+  // API returns songs in d.list (not d.data)
+  const songs = Array.isArray(d.list) ? d.list : (Array.isArray(d.data) ? d.data : (d.data?.songList || d.data?.items || []));
   const tracks = songs.map(x => ({
     id: 'mgtrack_' + x.copyrightId, title: x.songName || x.name || '',
     artist: x.singerList?.[0]?.name || x.singer || '',
     album: x.albumId !== 1 ? (x.album || '') : '', source: 'migu',
     source_url: 'https://music.migu.cn/v3/music/song/' + x.copyrightId,
-    img_url: x.img1 || x.img || '', duration: 0,
+    img_url: x.img1 || x.img || (x.albumImgs?.[0]?.img || ''),
+    duration: 0,
     song_id: x.songId, content_id: x.contentId, quality: x.toneControl,
   }));
-  return { tracks, total: d.data?.totalSize || tracks.length };
+  return { tracks, total: d.totalCount || d.data?.totalSize || tracks.length };
 }
 
 // ─── GitHub OAuth ───
@@ -855,7 +862,7 @@ async function apiRouter(url, env) {
         if (p === 'qq') return qqBootstrap(tid);
         if (p === 'kugou') return kgBootstrap(tid);
         if (p === 'kuwo') return kwBootstrap(tid);
-        if (p === 'bilibili') return biBootstrap(tid);
+        if (p === 'bilibili') return biBootstrap(tid, url.searchParams.get('avid') || '');
         if (p === 'migu') return mgBootstrap(tid, ex);
         return { url: null };
 
