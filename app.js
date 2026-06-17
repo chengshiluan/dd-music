@@ -34,8 +34,8 @@ function apiUrl(p){return API_BASE+'?'+new URLSearchParams(p).toString()}
 // Unified API cache (localStorage, max 100, LRU; skip playback URLs)
 var API_CACHE_MAX=100,API_CACHE_TTL=10*60*1000;
 var API_CACHE_NO=['bootstrap','oauth_url','login_check','netease_bind','favorite_add','favorite_remove','listen_record','share_create','share_get'];
-function getApiCache(){try{var s=localStorage.getItem('dd_music_api_cache');if(s)return JSON.parse(s)}catch{};return{}}
-function saveApiCache(cache){try{var keys=Object.keys(cache);if(keys.length>API_CACHE_MAX){keys.sort(function(a,b){return(cache[a]._ts||0)-(cache[b]._ts||0)});var remove=keys.slice(0,keys.length-API_CACHE_MAX);remove.forEach(function(k){delete cache[k]})}localStorage.setItem('dd_music_api_cache',JSON.stringify(cache))}catch{}}
+function getApiCache(){try{var s=localStorage.getItem('dd_music_api_cache_v2');if(s)return JSON.parse(s)}catch{};return{}}
+function saveApiCache(cache){try{var keys=Object.keys(cache);if(keys.length>API_CACHE_MAX){keys.sort(function(a,b){return(cache[a]._ts||0)-(cache[b]._ts||0)});var remove=keys.slice(0,keys.length-API_CACHE_MAX);remove.forEach(function(k){delete cache[k]})}localStorage.setItem('dd_music_api_cache_v2',JSON.stringify(cache))}catch{}}
 function apiCacheKey(p){var parts=[];for(var k in p)parts.push(k+'='+p[k]);parts.sort();return parts.join('&')}
 // Whether a response carries usable data (don't cache empty/error results)
 function hasCacheableData(d){if(d==null)return false;if(Array.isArray(d))return d.length>0;if(d._proxy_error||d.error)return false;if(d.result!=null)return d.result.length>0;if(d.tracks!=null)return d.tracks.length>0;if(d.playlists!=null)return d.playlists.length>0;if(d.list!=null)return d.list.length>0;return true}

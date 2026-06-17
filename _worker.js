@@ -377,7 +377,7 @@ function formatKuwoResults(d) {
     artist: htmlDecode(s.ARTIST), artist_id: 'kwartist_' + s.ARTISTID,
     album: htmlDecode(s.ALBUM), album_id: 'kwalbum_' + s.ALBUMID,
     source: 'kuwo', source_url: 'https://www.kuwo.cn/play_detail/' + s.DC_TARGETID,
-    img_url: s.web_albumpic_short ? `https://img2.kuwo.cn/star/albumcover/${s.web_albumpic_short}` : '',
+    img_url: s.web_albumpic_short ? kwProxyImg(`https://img2.kuwo.cn/star/albumcover/${s.web_albumpic_short}`) : '',
     duration: parseInt(s.DURATION || 0), lyric_url: s.DC_TARGETID,
   })), total: parseInt(d.HIT || d.TOTAL || 0) };
 }
@@ -421,7 +421,7 @@ async function kwChart() {
   if (!d._proxy_error && d.data?.data) {
     return d.data.data.map(item => ({
       id: 'kwplaylist_' + item.id, title: item.name,
-      cover_img_url: item.img || '', source: 'kuwo',
+      cover_img_url: kwProxyImg(item.img || ''), source: 'kuwo',
       source_url: 'https://www.kuwo.cn/playlist_detail/' + item.id,
     }));
   }
@@ -454,7 +454,7 @@ async function kwChart() {
   if (!d3._proxy_error && d3.data?.list) {
     return d3.data.list.map(item => ({
       id: 'kwplaylist_' + (item.id || item.pid || ''), title: item.name || '',
-      cover_img_url: item.img || item.pic || '', source: 'kuwo',
+      cover_img_url: kwProxyImg(item.img || item.pic || ''), source: 'kuwo',
       source_url: 'https://www.kuwo.cn/playlist_detail/' + (item.id || item.pid || ''),
     }));
   }
@@ -463,7 +463,7 @@ async function kwChart() {
   if (!d4._proxy_error && d4.data?.data) {
     return d4.data.data.map(item => ({
       id: 'kwplaylist_' + item.id, title: item.name,
-      cover_img_url: item.img || '', source: 'kuwo',
+      cover_img_url: kwProxyImg(item.img || ''), source: 'kuwo',
       source_url: 'https://www.kuwo.cn/playlist_detail/' + item.id,
     }));
   }
@@ -511,7 +511,7 @@ async function kwPlaylistTracks(listId) {
       id: 'kwtrack_' + songId, title: htmlDecode(title),
       artist: htmlDecode(artist), album: htmlDecode(album),
       source: 'kuwo', source_url: 'https://www.kuwo.cn/play_detail/' + songId,
-      img_url: img, duration: parseInt(s.DURATION || s.duration || 0),
+      img_url: kwProxyImg(img), duration: parseInt(s.DURATION || s.duration || 0),
     };
   }).filter(t => t.id !== 'kwtrack_' && t.title);
   return { tracks, total: d.total || tracks.length };
@@ -524,6 +524,13 @@ const BILI_PROXY = 'https://bili-proxy-ten.vercel.app/api';
 // Proxy B站 image URLs through /api/img to avoid CORS issues on hdslb.com
 function biProxyImg(url) {
   if (!url || !url.includes('hdslb.com')) return url;
+  return '/api/img?url=' + encodeURIComponent(url);
+}
+
+// Proxy kuwo image URLs through /api/img — kuwo image CDN is http-only (no https),
+// so on an https site the browser blocks them as mixed content.
+function kwProxyImg(url) {
+  if (!url) return '';
   return '/api/img?url=' + encodeURIComponent(url);
 }
 
