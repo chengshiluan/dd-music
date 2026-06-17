@@ -458,6 +458,15 @@ async function kwChart() {
       source_url: 'https://www.kuwo.cn/playlist_detail/' + (item.id || item.pid || ''),
     }));
   }
+  // Attempt 4: Direct static JSON (the 302 redirect target — stable fallback that needs no Secret)
+  const d4 = await proxyGet('https://star.kuwo.cn/star/upload/999/805/getRcmPlayList.json', 'https://www.kuwo.cn/');
+  if (!d4._proxy_error && d4.data?.data) {
+    return d4.data.data.map(item => ({
+      id: 'kwplaylist_' + item.id, title: item.name,
+      cover_img_url: item.img || '', source: 'kuwo',
+      source_url: 'https://www.kuwo.cn/playlist_detail/' + item.id,
+    }));
+  }
   return [];
 }
 

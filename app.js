@@ -32,12 +32,14 @@ $('#btnTheme').addEventListener('click',toggleTheme); initTheme();
 const API_BASE='/api/';
 function apiUrl(p){return API_BASE+'?'+new URLSearchParams(p).toString()}
 // Unified API cache (localStorage, max 100, LRU; skip playback URLs)
-var API_CACHE_MAX=100;
+var API_CACHE_MAX=100,API_CACHE_TTL=10*60*1000;
 var API_CACHE_NO=['bootstrap','oauth_url','login_check','netease_bind','favorite_add','favorite_remove','listen_record','share_create','share_get'];
 function getApiCache(){try{var s=localStorage.getItem('dd_music_api_cache');if(s)return JSON.parse(s)}catch{};return{}}
 function saveApiCache(cache){try{var keys=Object.keys(cache);if(keys.length>API_CACHE_MAX){keys.sort(function(a,b){return(cache[a]._ts||0)-(cache[b]._ts||0)});var remove=keys.slice(0,keys.length-API_CACHE_MAX);remove.forEach(function(k){delete cache[k]})}localStorage.setItem('dd_music_api_cache',JSON.stringify(cache))}catch{}}
 function apiCacheKey(p){var parts=[];for(var k in p)parts.push(k+'='+p[k]);parts.sort();return parts.join('&')}
-async function apiCall(p){if(p.platform==='netease'&&userState.github.loggedIn&&userState.github.id&&!p.github_id&&!p.cookie)p.github_id=userState.github.id;if(API_CACHE_NO.indexOf(p.action)<0){var ck=apiCacheKey(p);var cache=getApiCache();if(cache[ck]&&cache[ck].data){cache[ck]._ts=Date.now();saveApiCache(cache);return cache[ck].data}}var r=await fetch(apiUrl(p));if(!r.ok)throw new Error('API '+r.status);var d=await r.json();if(API_CACHE_NO.indexOf(p.action)<0){var ck=apiCacheKey(p);var cache=getApiCache();cache[ck]={data:d,_ts:Date.now()};saveApiCache(cache)}return d}
+// Whether a response carries usable data (don't cache empty/error results)
+function hasCacheableData(d){if(d==null)return false;if(Array.isArray(d))return d.length>0;if(d._proxy_error||d.error)return false;if(d.result!=null)return d.result.length>0;if(d.tracks!=null)return d.tracks.length>0;if(d.playlists!=null)return d.playlists.length>0;if(d.list!=null)return d.list.length>0;return true}
+async function apiCall(p){if(p.platform==='netease'&&userState.github.loggedIn&&userState.github.id&&!p.github_id&&!p.cookie)p.github_id=userState.github.id;if(API_CACHE_NO.indexOf(p.action)<0){var ck=apiCacheKey(p);var cache=getApiCache();var ent=cache[ck];if(ent&&ent.data&&Date.now()-(ent._ts||0)<API_CACHE_TTL&&hasCacheableData(ent.data)){return ent.data}if(ent)delete cache[ck]}var r=await fetch(apiUrl(p));if(!r.ok)throw new Error('API '+r.status);var d=await r.json();if(API_CACHE_NO.indexOf(p.action)<0&&hasCacheableData(d)){var ck=apiCacheKey(p);var cache=getApiCache();cache[ck]={data:d,_ts:Date.now()};saveApiCache(cache)}return d}
 
 // -- Helpers --
 function escHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
