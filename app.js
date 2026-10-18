@@ -62,14 +62,23 @@ $('#closeDrawer').addEventListener('click',closeDrawer);$('#drawerBackdrop').add
 
 // -- Now Playing --
 var _npResizeObserver=null;
+// Desktop two-column layout sizes the lyric column to the vinyl column.
+// Stacked (tablet/phone) and short-landscape layouts must keep natural height.
+function npIsTwoColumn(){
+  return window.matchMedia('(min-width:901px) and (min-height:561px)').matches;
+}
 function syncNpHeights(){
   var left=document.querySelector('.np-left');
   var right=document.querySelector('.np-right');
-  if(left&&right){right.style.height=left.offsetHeight+'px'}
+  if(!left||!right)return;
+  if(npIsTwoColumn()){right.style.height=left.offsetHeight+'px'}
+  else{right.style.height=''}
 }
 function openNowPlaying(){nowPlayingOpen=true;$('#nowPlaying').style.display='block';document.body.style.overflow='hidden';applySettings();syncNpHeights();if(!_npResizeObserver){_npResizeObserver=new ResizeObserver(function(){syncNpHeights()});_npResizeObserver.observe(document.querySelector('.np-left'))}if(currentSong){updateNowPlayingPage();loadLyric(currentSong);updateNpFavBtn()}else{$('#npTitle').textContent='顶点音乐';$('#npArtistTag').textContent='歌手：未知';$('#npAlbumTag').textContent='专辑：未知';$('#npPlatformTag').textContent='网易云';$('#npQualityTag').textContent='标准';$('#npLyrics').innerHTML='<div class="lyrics-placeholder">暂无歌词</div>'}npShowControls();startNpIdleTimer()}
 function closeNowPlaying(){nowPlayingOpen=false;$('#nowPlaying').style.display='none';document.body.style.overflow='';activeLyricIdx=-1;stopNpIdleTimer()}
 $('#playerCoverWrap').addEventListener('click',openNowPlaying);$('#npClose').addEventListener('click',closeNowPlaying);
+window.addEventListener('resize',syncNpHeights);
+window.addEventListener('orientationchange',function(){setTimeout(syncNpHeights,120)});
 // Fullscreen toggle
 $('#npFullscreen').addEventListener('click',function(){if(!document.fullscreenElement){document.documentElement.requestFullscreen().catch(function(){})}else{document.exitFullscreen().catch(function(){})}});
 // NP auto-hide controls after 3s idle
